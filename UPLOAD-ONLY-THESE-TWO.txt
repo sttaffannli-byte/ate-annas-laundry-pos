@@ -1,0 +1,16 @@
+CLOUDFLARE BUILD FIX FOR V5.3
+
+The repository files were mixed up:
+- wrangler.jsonc contains JavaScript from sw.js
+- package.json contains README/Markdown text
+
+Upload ONLY these corrected files to the GitHub repository root:
+1. package.json
+2. wrangler.jsonc
+
+Replace the current files and commit to main.
+Then wait for Cloudflare Pages to redeploy.
+
+Do not rename them.
+Do not paste sw.js into wrangler.jsonc.
+Do not paste README text into package.json.
