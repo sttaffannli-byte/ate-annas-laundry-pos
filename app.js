@@ -459,5 +459,15 @@ function bind(){
  $("#addExpenseBtn").onclick=()=>{$("#expenseDate").value=day(new Date());$("#expenseDescription").value="";$("#expenseAmount").value="";$("#expenseDialog").showModal()};$("#saveExpenseBtn").onclick=saveExpense;$("#expensesSearch").oninput=renderExpenses;
  if($("#closeRealtimePopupBtn"))$("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup")?.classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#saveReceiptSettingsBtn").onclick=saveReceiptSettings;$("#savePrinterSettingsBtn").onclick=savePrinterSettings;$("#testPrintBtn").onclick=testPrint;$("#companyLogoInput").onchange=e=>handleLogo(e.target.files[0]);$("#removeLogoBtn").onclick=()=>{db.settings.logoData="";save();renderSettings();toast("Logo removed")};$("#endShiftDate").value=reportDateKey(new Date());$("#endShiftDate").onchange=renderReports;$("#printEndShiftBtn").onclick=printEndShift;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
 }
-bind();setupCookieConsent();setupNetworkMonitoring();updateRealtimeIndicator();updatePhilippineClock();setInterval(updatePhilippineClock,1000);clearOrder();setTimeout(()=>syncOnlineBookings(true),1500);setInterval(()=>{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)},5000);setInterval(()=>$("#clock").textContent=new Date().toLocaleString(),1000);if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+updatePhilippineClock();
+setInterval(updatePhilippineClock,1000);
+try{bind()}catch(e){console.error("POS bind error:",e)}
+try{setupCookieConsent()}catch(e){console.error("Cookie setup error:",e)}
+try{setupNetworkMonitoring()}catch(e){console.error("Network setup error:",e)}
+try{updateRealtimeIndicator()}catch(e){console.error("Realtime indicator error:",e)}
+try{clearOrder()}catch(e){console.error("Order setup error:",e)}
+setTimeout(()=>{try{syncOnlineBookings(true)}catch(e){console.error("Booking sync error:",e)}},1500);
+setInterval(()=>{try{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)}catch(e){console.error("Realtime loop error:",e)}},5000);
+setInterval(()=>{const c=$("#clock");if(c)c.textContent=new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"medium"}).format(new Date())},1000);
+if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
 })();

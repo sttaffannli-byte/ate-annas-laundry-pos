@@ -23,6 +23,35 @@
       <span class="active">1. Details</span><span>2. Service</span><span>3. Confirm</span>
     </section>
 
+    
+    <section class="booking-card service-shop">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">STEP 1</span>
+          <h2>Piliin ang Laundry Service</h2>
+          <p>Pindutin ang service card para automatic na maidagdag sa cart.</p>
+        </div>
+        <div class="cart-badge">🛒 <span id="cartCount">0</span></div>
+      </div>
+
+      <div id="onlineServiceGrid" class="online-service-grid"></div>
+
+      <div class="online-cart-panel">
+        <div class="online-cart-header">
+          <div>
+            <span class="eyebrow">YOUR CART</span>
+            <h3>Napiling Services</h3>
+          </div>
+          <button id="clearOnlineCartBtn" type="button" class="ghost-btn">Clear Cart</button>
+        </div>
+        <div id="onlineCartItems" class="online-cart-items"></div>
+        <div class="online-cart-summary">
+          <div><span>Items</span><b id="onlineCartQty">0</b></div>
+          <div><span>Estimated Total</span><b id="onlineCartTotal">₱0.00</b></div>
+        </div>
+      </div>
+    </section>
+
     <form id="bookingForm">
       <section class="card">
         <h2>Your Information</h2>
@@ -65,6 +94,7 @@
         <label class="agree"><input id="bAgree" type="checkbox" required> I understand that the final amount will be confirmed after actual weighing and inspection.</label>
         <button class="submit" type="submit">SEND BOOKING REQUEST</button>
       </section>
+          <input id="cartData" name="cartData" type="hidden">
     </form>
 
     <dialog id="successDialog">

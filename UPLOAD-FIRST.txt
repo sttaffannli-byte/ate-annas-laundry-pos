@@ -1,20 +1,21 @@
-ATE ANNAS LAUNDRY POS V4.4.1 — COPYRIGHT VISIBLE FIX
+ATE ANNAS LAUNDRY POS V4.5 — ONLINE ADD TO CART
 
-FIXED:
-- Copyright is now always visible at the bottom of the screen.
-- Developer credit is now always visible.
-- Terms and Privacy links are visible in the fixed bottom bar.
-- Works on both POS and Customer Booking page.
-
-TEXT SHOWN:
-© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.
-DEVELOPED BY JIMBOYLAUDE.LLC.INFO
+NEW CUSTOMER ONLINE BOOKING FEATURES:
+- Click any laundry service card to add automatically to cart.
+- Every click increases quantity.
+- Plus and minus quantity buttons.
+- Remove item and Clear Cart.
+- Live cart item count.
+- Automatic estimated total.
+- Cart details included in the online booking.
+- Customer cannot submit without selecting a service.
+- Mobile and tablet friendly.
 
 UPLOAD:
 1. Extract ZIP.
-2. Upload ALL files to the GitHub repository root.
+2. Upload ALL contents to GitHub repository root.
 3. Replace existing files.
 4. Commit to main.
 5. Wait for Cloudflare deployment.
 6. Press CTRL + F5.
-7. Confirm header shows V4.4.1 COPYRIGHT VISIBLE FIX.
+7. Open booking.html and test the service cards.
