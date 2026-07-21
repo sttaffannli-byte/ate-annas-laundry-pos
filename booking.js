@@ -1,5 +1,14 @@
 (() => {
 "use strict";
+
+function setupCookieConsent(){
+ const key="ate-annas-cookie-consent-v1",banner=$("#cookieBanner");
+ if(!banner)return;
+ if(!localStorage.getItem(key))banner.classList.remove("hidden");
+ $("#acceptCookiesBtn").onclick=()=>{localStorage.setItem(key,"accepted");banner.classList.add("hidden")};
+ $("#rejectCookiesBtn").onclick=()=>{localStorage.setItem(key,"essential");banner.classList.add("hidden")};
+}
+
 const $=s=>document.querySelector(s);
 const KEY="ate-annas-laundry-pos-v2-data";
 const money=n=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(n||0));
@@ -59,5 +68,5 @@ $("#bookingForm").addEventListener("submit",async e=>{
 $("#sendWhatsappBtn").onclick=()=>{const num=String(settings.bookingWhatsapp||"").replace(/\D/g,"");if(!num){alert("The store WhatsApp number is not configured.");return}location.href=`https://wa.me/${num}?text=${encodeURIComponent(lastMessage)}`};
 $("#closeSuccessBtn").onclick=()=>$("#successDialog").close();
 window.addEventListener("online",updateNetwork);window.addEventListener("offline",updateNetwork);
-updateNetwork();render();
+setupCookieConsent();updateNetwork();render();
 })();

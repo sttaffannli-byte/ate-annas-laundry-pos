@@ -430,6 +430,25 @@ function setupNetworkMonitoring(){
   });
 }
 
+
+function setupCookieConsent(){
+  const key="ate-annas-cookie-consent-v1";
+  const banner=$("#cookieBanner");
+  if(!banner)return;
+  const saved=localStorage.getItem(key);
+  if(!saved)banner.classList.remove("hidden");
+  $("#acceptCookiesBtn")?.addEventListener("click",()=>{
+    localStorage.setItem(key,"accepted");
+    banner.classList.add("hidden");
+    toast("Cookie preference saved");
+  });
+  $("#rejectCookiesBtn")?.addEventListener("click",()=>{
+    localStorage.setItem(key,"essential");
+    banner.classList.add("hidden");
+    toast("Essential storage only");
+  });
+}
+
 function bind(){
  $("#loginBtn").onclick=login;$("#loginPin").onkeydown=e=>e.key==="Enter"&&login();$("#logoutBtn").onclick=logout;$("#menuBtn").onclick=()=>$(".sidebar").classList.toggle("open");$$(".sidebar nav button").forEach(b=>b.onclick=()=>navigate(b.dataset.page));$("#goNewOrderBtn").onclick=()=>navigate("new");$("#goOrdersBtn").onclick=()=>navigate("orders");
  $("#trackerSearch").oninput=renderTracker;$("#trackerRefreshBtn").onclick=renderTracker;$("#receivedDate").value=nowLocal();$("#dueDate").value=plusHours(24);$("#orderCustomer").onchange=()=>{const c=db.customers.find(x=>x.id===$("#orderCustomer").value);$("#orderContact").value=c?.contact||"";if(!$("#deliveryAddress").value)$("#deliveryAddress").value=c?.address||""};
@@ -440,5 +459,5 @@ function bind(){
  $("#addExpenseBtn").onclick=()=>{$("#expenseDate").value=day(new Date());$("#expenseDescription").value="";$("#expenseAmount").value="";$("#expenseDialog").showModal()};$("#saveExpenseBtn").onclick=saveExpense;$("#expensesSearch").oninput=renderExpenses;
  if($("#closeRealtimePopupBtn"))$("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup")?.classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#saveReceiptSettingsBtn").onclick=saveReceiptSettings;$("#savePrinterSettingsBtn").onclick=savePrinterSettings;$("#testPrintBtn").onclick=testPrint;$("#companyLogoInput").onchange=e=>handleLogo(e.target.files[0]);$("#removeLogoBtn").onclick=()=>{db.settings.logoData="";save();renderSettings();toast("Logo removed")};$("#endShiftDate").value=reportDateKey(new Date());$("#endShiftDate").onchange=renderReports;$("#printEndShiftBtn").onclick=printEndShift;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
 }
-bind();setupNetworkMonitoring();updateRealtimeIndicator();updatePhilippineClock();setInterval(updatePhilippineClock,1000);clearOrder();setTimeout(()=>syncOnlineBookings(true),1500);setInterval(()=>{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)},5000);setInterval(()=>$("#clock").textContent=new Date().toLocaleString(),1000);if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+bind();setupCookieConsent();setupNetworkMonitoring();updateRealtimeIndicator();updatePhilippineClock();setInterval(updatePhilippineClock,1000);clearOrder();setTimeout(()=>syncOnlineBookings(true),1500);setInterval(()=>{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)},5000);setInterval(()=>$("#clock").textContent=new Date().toLocaleString(),1000);if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
 })();

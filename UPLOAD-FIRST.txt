@@ -1,13 +1,20 @@
-ATE ANNAS LAUNDRY POS V4.3
+ATE ANNAS LAUNDRY POS V4.4.1 — COPYRIGHT VISIBLE FIX
 
-NEW:
-- Editable company name, address, contact and logo
-- Receipt heading/footer/logo/cashier settings
-- Printer settings: 58mm, 80mm, A4, copies, auto-print
-- Test print
-- End Shift / Daily Sales report
-- Separate Cash, GCash, Maya and Bank Transfer
-- Print End Shift report
-- Philippine date and time
+FIXED:
+- Copyright is now always visible at the bottom of the screen.
+- Developer credit is now always visible.
+- Terms and Privacy links are visible in the fixed bottom bar.
+- Works on both POS and Customer Booking page.
 
-Extract ZIP, upload ALL contents to GitHub root, replace files, commit to main, wait for Cloudflare deploy, then CTRL + F5.
+TEXT SHOWN:
+© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.
+DEVELOPED BY JIMBOYLAUDE.LLC.INFO
+
+UPLOAD:
+1. Extract ZIP.
+2. Upload ALL files to the GitHub repository root.
+3. Replace existing files.
+4. Commit to main.
+5. Wait for Cloudflare deployment.
+6. Press CTRL + F5.
+7. Confirm header shows V4.4.1 COPYRIGHT VISIBLE FIX.

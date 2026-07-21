@@ -209,3 +209,77 @@ button,input,select,textarea{min-height:44px}
  body[data-paper="80mm"] .claim{width:80mm!important;font-size:13px!important}
  body[data-paper="A4"] .claim{width:180mm!important;font-size:15px!important}
 }
+
+.site-legal-footer{
+  margin:24px 22px 90px;
+  padding:18px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  line-height:1.7
+}
+.site-legal-footer nav{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:5px}
+.site-legal-footer a{color:var(--primary);font-weight:800;text-decoration:none}
+.cookie-banner{
+  position:fixed;
+  left:18px;right:18px;bottom:18px;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:16px 18px;
+  border:1px solid #bfdbfe;
+  border-radius:18px;
+  background:#0f172a;
+  color:#fff;
+  box-shadow:0 24px 70px rgba(15,23,42,.35)
+}
+.cookie-banner.hidden{display:none}
+.cookie-banner p{margin:4px 0;color:#dbeafe;font-size:12px;line-height:1.5}
+.cookie-banner a{color:#7dd3fc;font-size:12px;font-weight:800}
+.cookie-actions{display:flex;gap:10px;flex:0 0 auto}
+.cookie-actions button{white-space:nowrap}
+@media(max-width:760px){
+  .cookie-banner{flex-direction:column;align-items:stretch}
+  .cookie-actions{display:grid;grid-template-columns:1fr 1fr}
+}
+
+.fixed-copyright-bar{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9998;
+  min-height:42px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  background:#0f172a;
+  color:#ffffff;
+  border-top:2px solid #2563eb;
+  box-shadow:0 -8px 25px rgba(15,23,42,.28);
+  font-size:11px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:.02em
+}
+.fixed-copyright-bar a{
+  color:#7dd3fc;
+  font-weight:900;
+  text-decoration:none
+}
+body{padding-bottom:58px!important}
+.cookie-banner{bottom:62px!important}
+@media(max-width:680px){
+  .fixed-copyright-bar{gap:4px 10px;font-size:9px;line-height:1.25}
+  body{padding-bottom:72px!important}
+  .cookie-banner{bottom:76px!important}
+}
+@media print{
+  .fixed-copyright-bar{display:none!important}
+}
