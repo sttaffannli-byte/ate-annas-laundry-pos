@@ -11,7 +11,7 @@ const nowLocal=()=>{const d=new Date(),o=d.getTimezoneOffset();return new Date(d
 const plusHours=h=>{const d=new Date();d.setHours(d.getHours()+h);const o=d.getTimezoneOffset();return new Date(d-o*60000).toISOString().slice(0,16)};
 
 const defaults={
- settings:{storeName:"ATE ANNAS LAUNDRY",address:"Buting, Pasig City",contact:"0917-857-5757",footer:"Thank you! Please present this claim stub upon release.",adminPin:"1234",cashierPin:"0000",bookingWhatsapp:"639178575757",bookingArea:"Buting, Pasig City and nearby areas",bookingMinimum:150,bookingAdminKey:"",logoData:"",receiptHeading:"OFFICIAL RECEIPT / CLAIM STUB",receiptShowLogo:true,receiptShowCashier:true,printerPaperSize:"80mm",printerConnection:"system",printerCopies:1,printerAutoPrint:false},
+ settings:{storeName:"ATE ANNAS LAUNDRY",address:"Buting, Pasig City",contact:"0917-857-5757",footer:"Thank you! Please present this claim stub upon release.",adminPin:"1234",cashierPin:"0000",bookingWhatsapp:"639178575757",bookingArea:"Buting, Pasig City and nearby areas",bookingMinimum:150,bookingAdminKey:"",logoData:"",receiptHeading:"ORDER RECEIPT",receiptShowLogo:true,receiptShowCashier:true,printerPaperSize:"80mm",printerConnection:"system",printerCopies:1,printerAutoPrint:false,nextInvoiceNumber:1},
  customers:[{id:"c1",name:"Walk-in Customer",contact:"",address:""}],
  services:[
   {id:"s1",name:"Wash, Dry & Fold",type:"kg",rate:45,minimum:4,active:true},
@@ -25,6 +25,28 @@ const defaults={
  orders:[],payments:[],expenses:[],currentUser:null
 };
 let db=load(),activeUser=null,currentItems=[],openedOrderId=null;
+
+let currentReceiptIsReprint=false;
+function invoiceLabel(number){return "INV-"+String(Math.max(1,Number(number||1))).padStart(6,"0")}
+function ensureInvoiceNumbers(){
+ if(!db.settings.nextInvoiceNumber||db.settings.nextInvoiceNumber<1)db.settings.nextInvoiceNumber=1;
+ const used=new Set(db.orders.map(o=>Number(o.invoiceNumber)).filter(n=>n>0));
+ let next=1;
+ [...db.orders].sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt)).forEach(o=>{
+   if(!Number(o.invoiceNumber)){while(used.has(next))next++;o.invoiceNumber=next;used.add(next)}
+   if(!Number.isFinite(Number(o.receiptPrintCount)))o.receiptPrintCount=0;
+ });
+ const max=Math.max(0,...db.orders.map(o=>Number(o.invoiceNumber)||0));
+ db.settings.nextInvoiceNumber=Math.max(Number(db.settings.nextInvoiceNumber)||1,max+1);
+}
+function assignInvoiceNumber(order){
+ ensureInvoiceNumbers();
+ order.invoiceNumber=Number(db.settings.nextInvoiceNumber)||1;
+ order.receiptPrintCount=0;
+ db.settings.nextInvoiceNumber=order.invoiceNumber+1;
+ return order;
+}
+
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x?{...structuredClone(defaults),...x,settings:{...defaults.settings,...x.settings}}:structuredClone(defaults)}catch{return structuredClone(defaults)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function toast(m){const t=$("#toast");if(!t){console.log(m);return}t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
@@ -45,18 +67,39 @@ function openServiceItem(id){const s=db.services.find(x=>x.id===id);$("#serviceI
 function addServiceItem(e){e.preventDefault();const id=$("#serviceItemId").value,s=db.services.find(x=>x.id===id),qty=s.type==="flat"?1:Number($("#serviceQty").value||0);if(qty<=0)return toast("Enter valid quantity");currentItems.push({id:uid("item"),serviceId:id,qty,remarks:$("#serviceRemarks").value.trim()});$("#serviceItemDialog").close();renderOrderItems()}
 function renderOrderItems(){const t=orderTotals();$("#orderItems").innerHTML=currentItems.length?currentItems.map(i=>{const s=db.services.find(x=>x.id===i.serviceId),amount=serviceCharge(s,i.qty);return`<div class="order-item"><div><b>${esc(s.name)}</b><br><small>${s.type==="flat"?"Flat rate":i.qty+" "+(s.type==="kg"?"kg":"pc")} ${i.remarks?"· "+esc(i.remarks):""}</small></div><b>${money(amount)}</b><button data-remove-item="${i.id}">×</button></div>`}).join(""):`<div class="empty">Tap a service to add it to the order.</div>`;$("#orderSubtotal").textContent=money(t.subtotal);$("#orderTotal").textContent=money(t.total);$$("[data-remove-item]").forEach(b=>b.onclick=()=>{currentItems=currentItems.filter(i=>i.id!==b.dataset.removeItem);renderOrderItems()})}
 function clearOrder(){currentItems=[];$("#orderCustomer").value="c1";$("#orderContact").value="";$("#trackerSearch").oninput=renderTracker;$("#trackerRefreshBtn").onclick=renderTracker;$("#receivedDate").value=nowLocal();$("#dueDate").value=plusHours(24);$("#deliveryType").value="Walk-in";$("#deliveryAddress").value="";$("#orderNotes").value="";$("#orderPriority").value="Normal";$("#orderStatus").value="Received";$("#orderDiscount").value=0;$("#deliveryFee").value=0;renderOrderItems()}
-function saveOrder(){const cid=$("#orderCustomer").value,c=db.customers.find(x=>x.id===cid),t=orderTotals();if(!c)return toast("Select a customer");if(!currentItems.length)return toast("Add at least one service");if($("#deliveryType").value!=="Walk-in"&&!$("#deliveryAddress").value.trim())return toast("Address is required");const id=uid("ord"),code="LA-"+new Date().toISOString().replace(/\D/g,"").slice(2,14);db.orders.unshift({id,code,customerId:cid,contact:c.contact,received:new Date($("#receivedDate").value).toISOString(),due:new Date($("#dueDate").value).toISOString(),deliveryType:$("#deliveryType").value,address:$("#deliveryAddress").value.trim(),notes:$("#orderNotes").value.trim(),priority:$("#orderPriority").value,status:$("#orderStatus").value,items:structuredClone(currentItems),subtotal:t.subtotal,discount:t.discount,deliveryFee:t.fee,total:t.total,createdBy:activeUser.username,createdAt:new Date().toISOString()});save();clearOrder();renderAll();toast("Laundry order saved")}
-function customerStats(id){const orders=db.orders.filter(o=>o.customerId===id);return{count:orders.length,total:orders.reduce((a,o)=>a+o.total,0)}}
-function renderCustomers(){const q=$("#customersSearch").value.toLowerCase();$("#customersTable").innerHTML=db.customers.filter(c=>c.id!=="c1"&&JSON.stringify(c).toLowerCase().includes(q)).map(c=>{const st=customerStats(c.id);return`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.contact)}</td><td>${esc(c.address)}</td><td>${st.count}</td><td>${money(st.total)}</td><td><button data-edit-customer="${c.id}">Edit</button></td></tr>`}).join("");$("#orderCustomer").innerHTML=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");const selected=db.customers.find(c=>c.id===$("#orderCustomer").value)||db.customers[0];$("#orderContact").value=selected?.contact||"";$$("[data-edit-customer]").forEach(b=>b.onclick=()=>openCustomer(db.customers.find(c=>c.id===b.dataset.editCustomer)))}
-function openCustomer(c=null){$("#customerDialogTitle").textContent=c?"Edit Customer":"Add Customer";$("#customerId").value=c?.id||"";$("#cName").value=c?.name||"";$("#cContact").value=c?.contact||"";$("#cAddress").value=c?.address||"";$("#customerDialog").showModal()}
-function saveCustomer(e){e.preventDefault();const id=$("#customerId").value||uid("c"),c={id,name:$("#cName").value.trim(),contact:$("#cContact").value.trim(),address:$("#cAddress").value.trim()};const ix=db.customers.findIndex(x=>x.id===id);if(ix>=0)db.customers[ix]=c;else db.customers.push(c);save();$("#customerDialog").close();renderAll();$("#orderCustomer").value=id;$("#orderContact").value=c.contact;toast("Customer saved")}
-function renderServices(){const q=$("#servicesSearch").value.toLowerCase();$("#servicesTable").innerHTML=db.services.filter(s=>JSON.stringify(s).toLowerCase().includes(q)).map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${s.type==="kg"?"Per kilo":s.type==="piece"?"Per piece":"Flat rate"}</td><td>${money(s.rate)}</td><td>${s.minimum}</td><td>${s.active?"Yes":"No"}</td><td><button data-edit-service="${s.id}">Edit</button></td></tr>`).join("");$$("[data-edit-service]").forEach(b=>b.onclick=()=>openService(db.services.find(s=>s.id===b.dataset.editService)))}
-function openService(s=null){$("#serviceDialogTitle").textContent=s?"Edit Service":"Add Service";$("#serviceId").value=s?.id||"";$("#sName").value=s?.name||"";$("#sType").value=s?.type||"kg";$("#sRate").value=s?.rate??"";$("#sMinimum").value=s?.minimum??0;$("#sActive").checked=s?.active??true;$("#serviceDialog").showModal()}
-function saveService(e){e.preventDefault();const id=$("#serviceId").value||uid("s"),s={id,name:$("#sName").value.trim(),type:$("#sType").value,rate:Number($("#sRate").value),minimum:Number($("#sMinimum").value||0),active:$("#sActive").checked};const ix=db.services.findIndex(x=>x.id===id);if(ix>=0)db.services[ix]=s;else db.services.push(s);save();$("#serviceDialog").close();renderAll();toast("Service saved")}
-function paidFor(orderId){return db.payments.filter(p=>p.orderId===orderId).reduce((a,p)=>a+p.amount,0)}
-function orderBadge(o){const overdue=new Date(o.due)<new Date()&&!["Ready","Released"].includes(o.status);if(overdue)return'<span class="badge overdue">OVERDUE</span>';if(o.status==="Ready")return'<span class="badge ready">READY</span>';if(o.status==="Released")return'<span class="badge">RELEASED</span>';return`<span class="badge process">${esc(o.status)}</span>`}
+function saveOrder(){
+ const cid=$("#orderCustomer").value,c=db.customers.find(x=>x.id===cid),t=orderTotals();
+ if(!c)return toast("Select a customer");
+ if(!currentItems.length)return toast("Add at least one service");
+ if($("#deliveryType").value!=="Walk-in"&&!$("#deliveryAddress").value.trim())return toast("Address is required");
+ const id=uid("ord"),code="LA-"+new Date().toISOString().replace(/\D/g,"").slice(2,14);
+ const order=assignInvoiceNumber({
+   id,code,customerId:cid,contact:c.contact,
+   received:new Date($("#receivedDate").value).toISOString(),
+   due:new Date($("#dueDate").value).toISOString(),
+   deliveryType:$("#deliveryType").value,address:$("#deliveryAddress").value.trim(),
+   notes:$("#orderNotes").value.trim(),priority:$("#orderPriority").value,status:$("#orderStatus").value,
+   items:structuredClone(currentItems),subtotal:t.subtotal,discount:t.discount,deliveryFee:t.fee,total:t.total,
+   createdBy:activeUser.username,createdAt:new Date().toISOString()
+ });
+ db.orders.unshift(order);save();clearOrder();renderAll();toast("Laundry order saved · "+invoiceLabel(order.invoiceNumber));
+}
 function renderOrders(){const q=$("#ordersSearch").value.toLowerCase(),f=$("#ordersStatusFilter").value,now=new Date();$("#countReceived").textContent=db.orders.filter(o=>o.status==="Received").length;$("#countProcess").textContent=db.orders.filter(o=>["Washing","Drying","Folding"].includes(o.status)).length;$("#countReady").textContent=db.orders.filter(o=>o.status==="Ready").length;$("#countOverdue").textContent=db.orders.filter(o=>new Date(o.due)<now&&!["Ready","Released"].includes(o.status)).length;$("#ordersTable").innerHTML=db.orders.filter(o=>(!f||o.status===f)&&JSON.stringify(o).toLowerCase().includes(q)).map(o=>{const c=db.customers.find(x=>x.id===o.customerId),bal=Math.max(0,o.total-paidFor(o.id));return`<tr><td><b>${esc(o.code)}</b><br><small>${esc(o.deliveryType)}</small></td><td>${esc(c?.name||"Unknown")}<br><small>${esc(o.contact)}</small></td><td>${new Date(o.received).toLocaleString()}</td><td>${new Date(o.due).toLocaleString()}</td><td>${orderBadge(o)}</td><td>${money(o.total)}</td><td>${money(bal)}</td><td><button data-view-order="${o.id}">View</button></td></tr>`}).join("");$$("[data-view-order]").forEach(b=>b.onclick=()=>showOrder(b.dataset.viewOrder))}
-function showOrder(id){openedOrderId=id;const o=db.orders.find(x=>x.id===id),c=db.customers.find(x=>x.id===o.customerId),paid=paidFor(id),bal=Math.max(0,o.total-paid);const logo=db.settings.logoData&&db.settings.receiptShowLogo?`<img class="receipt-logo" src="${db.settings.logoData}" alt="Logo">`:"";const cashier=db.settings.receiptShowCashier?`<p>Cashier: ${esc(o.createdBy||"")}</p>`:"";$("#orderDetails").innerHTML=`<div class="claim receipt-${esc(db.settings.printerPaperSize||"80mm")}">${logo}<h2>${esc(db.settings.storeName)}</h2><p>${esc(db.settings.address)}</p><p>${esc(db.settings.contact)}</p><h3>${esc(db.settings.receiptHeading||"OFFICIAL RECEIPT / CLAIM STUB")}</h3><hr><p><b>${esc(o.code)}</b><br>${new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"medium"}).format(new Date(o.createdAt))}</p>${cashier}<hr><p><b>${esc(c?.name||"Unknown")}</b><br>${esc(o.contact)}<br>${esc(o.address||"")}</p><hr>${o.items.map(i=>{const s=db.services.find(x=>x.id===i.serviceId);return`<p style="text-align:left">${esc(s?.name||"Service")} — ${i.qty} ${s?.type==="kg"?"kg":s?.type==="piece"?"pc":""}<span style="float:right">${money(serviceCharge(s,i.qty))}</span></p>`}).join("")}<hr><p style="text-align:left">Subtotal <span style="float:right">${money(o.subtotal)}</span></p><p style="text-align:left">Discount <span style="float:right">-${money(o.discount)}</span></p><p style="text-align:left">Delivery <span style="float:right">${money(o.deliveryFee)}</span></p><p style="text-align:left"><b>TOTAL</b><span style="float:right"><b>${money(o.total)}</b></span></p><p style="text-align:left">Paid <span style="float:right">${money(paid)}</span></p><p style="text-align:left">Balance <span style="float:right">${money(bal)}</span></p><hr><p>Due: ${new Date(o.due).toLocaleString()}<br>Priority: ${esc(o.priority||"Normal")}<br>Status: ${esc(o.status)}</p><hr><p>${esc(db.settings.footer)}</p><label>Status<select id="detailStatus"><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select></label><button id="updateStatusBtn" class="primary full" style="margin-top:10px">Update Status</button></div>`;$("#detailStatus").value=o.status;$("#updateStatusBtn").onclick=()=>{o.status=$("#detailStatus").value;save();renderAll();showOrder(id);toast("Status updated")};$("#orderDialog").showModal()}
+function showOrder(id,forPrint=false){
+ openedOrderId=id;
+ const o=db.orders.find(x=>x.id===id);
+ if(!o)return;
+ if(!Number(o.invoiceNumber)){assignInvoiceNumber(o);save()}
+ const c=db.customers.find(x=>x.id===o.customerId),paid=paidFor(id),bal=Math.max(0,o.total-paid);
+ const logo=db.settings.logoData&&db.settings.receiptShowLogo?`<img class="receipt-logo" src="${db.settings.logoData}" alt="Logo">`:"";
+ const cashier=db.settings.receiptShowCashier?`<p>Cashier: ${esc(o.createdBy||"")}</p>`:"";
+ const reprintBlock=forPrint&&currentReceiptIsReprint?`<div class="receipt-reprint">REPRINT<br><small>Reprint #${Math.max(1,Number(o.receiptPrintCount||1)-1)}</small></div>`:"";
+ const paymentMethods=[...new Set(db.payments.filter(p=>p.orderId===id).map(p=>p.method))].join(", ")||"Unpaid";
+ $("#orderDetails").innerHTML=`<div class="claim receipt-80mm">${reprintBlock}${logo}<h2>${esc(db.settings.storeName)}</h2><p>${esc(db.settings.address)}</p><p>${esc(db.settings.contact)}</p><h3>ORDER RECEIPT</h3><hr><p style="text-align:left"><b>Invoice No.</b><span style="float:right"><b>${invoiceLabel(o.invoiceNumber)}</b></span><br><b>Order No.</b><span style="float:right">${esc(o.code)}</span><br><b>Date</b><span style="float:right">${new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"short"}).format(new Date(o.createdAt))}</span></p>${cashier}<hr><p><b>${esc(c?.name||"Unknown")}</b><br>${esc(o.contact)}<br>${esc(o.address||"")}</p><hr>${o.items.map(i=>{const s=db.services.find(x=>x.id===i.serviceId);return`<p style="text-align:left">${esc(s?.name||"Service")} — ${i.qty} ${s?.type==="kg"?"kg":s?.type==="piece"?"pc":""}<span style="float:right">${money(serviceCharge(s,i.qty))}</span></p>`}).join("")}<hr><p style="text-align:left">Subtotal <span style="float:right">${money(o.subtotal)}</span></p><p style="text-align:left">Discount <span style="float:right">-${money(o.discount)}</span></p><p style="text-align:left">Delivery <span style="float:right">${money(o.deliveryFee)}</span></p><p style="text-align:left"><b>TOTAL</b><span style="float:right"><b>${money(o.total)}</b></span></p><p style="text-align:left">Paid <span style="float:right">${money(paid)}</span></p><p style="text-align:left">Balance <span style="float:right">${money(bal)}</span></p><p style="text-align:left">Payment <span style="float:right">${esc(paymentMethods)}</span></p><hr><p>Due: ${new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"short"}).format(new Date(o.due))}<br>Priority: ${esc(o.priority||"Normal")}<br>Status: ${esc(o.status)}</p><hr><p>${esc(db.settings.footer)}</p><label class="no-print-control">Status<select id="detailStatus"><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select></label><button id="updateStatusBtn" class="primary full no-print-control" style="margin-top:10px">Update Status</button></div>`;
+ $("#detailStatus").value=o.status;
+ $("#updateStatusBtn").onclick=()=>{o.status=$("#detailStatus").value;save();renderAll();showOrder(id);toast("Status updated")};
+ if(!$("#orderDialog").open)$("#orderDialog").showModal();
+}
 function openPayment(){const o=db.orders.find(x=>x.id===openedOrderId),bal=Math.max(0,o.total-paidFor(o.id));if(bal<=0)return toast("Order is fully paid");$("#paymentOrderId").value=o.id;$("#paymentBalance").textContent=money(bal);$("#paymentAmount").value=bal.toFixed(2);$("#paymentReference").value="";$("#paymentDialog").showModal()}
 function savePayment(e){e.preventDefault();const oid=$("#paymentOrderId").value,o=db.orders.find(x=>x.id===oid),bal=Math.max(0,o.total-paidFor(oid)),amt=Number($("#paymentAmount").value||0),method=$("#paymentMethod").value,ref=$("#paymentReference").value.trim();if(amt<=0||amt>bal)return toast("Enter valid amount");if(method!=="Cash"&&!ref)return toast("Reference number required");db.payments.unshift({id:uid("pay"),orderId:oid,date:new Date().toISOString(),method,reference:ref,amount:amt,user:activeUser.username});save();$("#paymentDialog").close();renderAll();showOrder(oid);toast("Payment saved");if(db.settings.printerAutoPrint)setTimeout(printReceipt,300)}
 function renderPayments(){
@@ -200,10 +243,10 @@ function printEndShift(){
  const w=window.open("","_blank","width=700,height=800");w.document.write(`<html><head><title>End Shift ${d}</title><style>body{font-family:Arial;padding:24px}h1,h2,p{text-align:center}table{width:100%;border-collapse:collapse;margin-top:18px}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}.r{text-align:right}</style></head><body>${logo}<h1>${esc(db.settings.storeName)}</h1><p>${esc(db.settings.address)}<br>${esc(db.settings.contact)}</p><h2>END SHIFT SALES — ${esc(d)}</h2><table><tr><td>Cash</td><td class="r">${money(cash)}</td></tr><tr><td>GCash</td><td class="r">${money(gcash)}</td></tr><tr><td>Maya</td><td class="r">${money(maya)}</td></tr><tr><td>Bank Transfer</td><td class="r">${money(bank)}</td></tr><tr><th>Total Collected</th><th class="r">${money(total)}</th></tr><tr><td>Expenses</td><td class="r">${money(exp)}</td></tr><tr><th>Net Cash Flow</th><th class="r">${money(total-exp)}</th></tr></table><p>Printed: ${new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"full",timeStyle:"medium"}).format(new Date())}</p></body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)
 }
 function renderSettings(){
- const s=db.settings;$("#storeName").value=s.storeName;$("#storeAddress").value=s.address;$("#storeContact").value=s.contact;$("#receiptFooter").value=s.footer;$("#receiptHeading").value=s.receiptHeading;$("#receiptShowLogo").checked=!!s.receiptShowLogo;$("#receiptShowCashier").checked=!!s.receiptShowCashier;if($("#printerConnection"))$("#printerConnection").value=s.printerConnection||"system";$("#printerCopies").value=s.printerCopies||1;$("#printerAutoPrint").checked=!!s.printerAutoPrint;$("#adminPin").value=s.adminPin;$("#cashierPin").value=s.cashierPin;const p=$("#companyLogoPreview");if(s.logoData){p.src=s.logoData;p.classList.remove("hidden")}else p.classList.add("hidden")
+ const s=db.settings;$("#storeName").value=s.storeName;$("#storeAddress").value=s.address;$("#storeContact").value=s.contact;$("#receiptFooter").value=s.footer;$("#receiptHeading").value="ORDER RECEIPT";$("#receiptShowLogo").checked=!!s.receiptShowLogo;$("#receiptShowCashier").checked=!!s.receiptShowCashier;if($("#printerConnection"))$("#printerConnection").value=s.printerConnection||"system";$("#printerCopies").value=s.printerCopies||1;$("#printerAutoPrint").checked=!!s.printerAutoPrint;$("#adminPin").value=s.adminPin;$("#cashierPin").value=s.cashierPin;const p=$("#companyLogoPreview");if(s.logoData){p.src=s.logoData;p.classList.remove("hidden")}else p.classList.add("hidden")
 }
 function saveSettings(){Object.assign(db.settings,{storeName:$("#storeName").value.trim()||"ATE ANNAS LAUNDRY",address:$("#storeAddress").value.trim(),contact:$("#storeContact").value.trim()});save();renderSettings();toast("Company settings saved")}
-function saveReceiptSettings(){Object.assign(db.settings,{receiptHeading:$("#receiptHeading").value.trim(),footer:$("#receiptFooter").value.trim(),receiptShowLogo:$("#receiptShowLogo").checked,receiptShowCashier:$("#receiptShowCashier").checked});save();toast("Receipt settings saved")}
+function saveReceiptSettings(){Object.assign(db.settings,{receiptHeading:"ORDER RECEIPT",footer:$("#receiptFooter").value.trim(),receiptShowLogo:$("#receiptShowLogo").checked,receiptShowCashier:$("#receiptShowCashier").checked});save();toast("Receipt settings saved")}
 function savePrinterSettings(){Object.assign(db.settings,{printerPaperSize:"80mm",printerConnection:$("#printerConnection")?.value||"system",printerCopies:Math.max(1,Math.min(3,Number($("#printerCopies").value||1))),printerAutoPrint:$("#printerAutoPrint").checked});save();updatePrinterStatus();toast("80mm printer settings saved")}
 function handleLogo(file){if(!file)return;if(file.size>1500000)return toast("Logo must be below 1.5MB");const r=new FileReader();r.onload=()=>{db.settings.logoData=r.result;save();renderSettings();toast("Company logo updated")};r.readAsDataURL(file)}
 
@@ -332,8 +375,10 @@ function buildEscPosReceipt(){
     centerText(db.settings.storeName,width),
     centerText(db.settings.address,width),
     centerText(db.settings.contact,width),
-    centerText(db.settings.receiptHeading||"OFFICIAL RECEIPT",width),
+    ...(currentReceiptIsReprint?[centerText("*** REPRINT ***",width),centerText("Reprint #"+Math.max(1,Number(o.receiptPrintCount||1)-1),width)]:[]),
+    centerText("ORDER RECEIPT",width),
     "-".repeat(width),
+    "INVOICE: "+invoiceLabel(o.invoiceNumber),
     "ORDER: "+o.code,
     new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"short"}).format(new Date(o.createdAt)),
     "CUSTOMER: "+(c?.name||"Unknown"),
@@ -398,12 +443,21 @@ async function directThermalPrint(mode){
 async function printReceipt(){
  db.settings.printerPaperSize="80mm";
  document.body.dataset.paper="80mm";
+ const o=db.orders.find(x=>x.id===openedOrderId)||db.orders[0];
+ if(!o)return toast("No order available");
+ if(!Number(o.invoiceNumber))assignInvoiceNumber(o);
+ currentReceiptIsReprint=Number(o.receiptPrintCount||0)>=1;
+ o.receiptPrintCount=Number(o.receiptPrintCount||0)+1;
+ o.lastReceiptPrintedAt=new Date().toISOString();
+ save();
+ showOrder(o.id,true);
  const mode=db.settings.printerConnection||"system";
  if(mode==="system"){
    for(let i=0;i<Number(db.settings.printerCopies||1);i++)setTimeout(()=>window.print(),i*700);
+   toast(currentReceiptIsReprint?"REPRINT prepared":"ORDER RECEIPT prepared");
    return;
  }
- try{await directThermalPrint(mode)}
+ try{await directThermalPrint(mode);toast(currentReceiptIsReprint?"REPRINT sent to printer":"ORDER RECEIPT sent to printer")}
  catch(error){console.error(error);toast(error.message||"Printer error");updatePrinterStatus()}
 }
 function testPrint(){const old=openedOrderId;if(db.orders[0]){showOrder(db.orders[0].id);setTimeout(printReceipt,300)}else toast("Create an order first to test print")}
@@ -504,29 +558,24 @@ function findServiceForBooking(b){
   return exact||db.services.find(s=>s.active)||null;
 }
 function importOnlineBooking(b){
-  if(db.orders.some(o=>o.onlineBookingId===b.id))return false;
-  let customer=db.customers.find(c=>c.contact===b.mobile);
-  if(!customer){
-    customer={id:uid("c"),name:b.customer_name,contact:b.mobile,address:b.address};
-    db.customers.unshift(customer);
-  }
-  const service=findServiceForBooking(b);
-  if(!service)throw new Error("No active service configured");
-  const qty=Math.max(Number(b.quantity||1),Number(service.minimum||0));
-  const subtotal=serviceCharge(service,qty);
-  const due=new Date(`${b.preferred_date}T${String(b.preferred_time||"08:00").slice(0,5)}:00`);
-  if(Number.isNaN(due.getTime()))due.setTime(Date.now()+86400000);
-  const order={
-    id:uid("ord"),code:"LA-"+new Date().toISOString().replace(/\D/g,"").slice(2,14),
-    onlineBookingId:b.id,onlineBookingCode:b.booking_code,customerId:customer.id,contact:b.mobile,
-    received:new Date(b.created_at).toISOString(),due:due.toISOString(),deliveryType:b.request_type,
-    address:b.address,notes:[b.notes,b.promo_code?`Promo: ${b.promo_code}`:"",`ONLINE BOOKING: ${b.booking_code}`].filter(Boolean).join("\n"),
-    priority:"Normal",status:"Received",items:[{serviceId:service.id,qty}],
-    subtotal,discount:0,deliveryFee:0,total:subtotal,createdBy:"ONLINE",createdAt:new Date(b.created_at).toISOString()
-  };
-  db.orders.unshift(order);
-  save();
-  return true;
+ if(db.orders.some(o=>o.onlineBookingId===b.id))return false;
+ let customer=db.customers.find(c=>c.contact===b.mobile);
+ if(!customer){customer={id:uid("c"),name:b.customer_name,contact:b.mobile,address:b.address};db.customers.unshift(customer)}
+ const service=findServiceForBooking(b);
+ if(!service)throw new Error("No active service configured");
+ const qty=Math.max(Number(b.quantity||1),Number(service.minimum||0));
+ const subtotal=serviceCharge(service,qty);
+ const due=new Date(`${b.preferred_date}T${String(b.preferred_time||"08:00").slice(0,5)}:00`);
+ if(Number.isNaN(due.getTime()))due.setTime(Date.now()+86400000);
+ const order=assignInvoiceNumber({
+   id:uid("ord"),code:"LA-"+new Date().toISOString().replace(/\D/g,"").slice(2,14),
+   onlineBookingId:b.id,onlineBookingCode:b.booking_code,customerId:customer.id,contact:b.mobile,
+   received:new Date(b.created_at).toISOString(),due:due.toISOString(),deliveryType:b.request_type,
+   address:b.address,notes:[b.notes,b.promo_code?`Promo: ${b.promo_code}`:"",`ONLINE BOOKING: ${b.booking_code}`].filter(Boolean).join("\\n"),
+   priority:"Normal",status:"Received",items:[{serviceId:service.id,qty}],
+   subtotal,discount:0,deliveryFee:0,total:subtotal,createdBy:"ONLINE",createdAt:new Date(b.created_at).toISOString()
+ });
+ db.orders.unshift(order);save();return true;
 }
 
 let realtimeLastBookingId=localStorage.getItem("ate-annas-last-online-booking")||"";
@@ -700,6 +749,7 @@ function updatePhilippineClock(){
   if($("#inboxRealtimeClock"))$("#inboxRealtimeClock").textContent=shortText+" PH";
 }
 
+ensureInvoiceNumbers();save();
 let deferredInstallPrompt=null;
 
 function updateNetworkStatus(){

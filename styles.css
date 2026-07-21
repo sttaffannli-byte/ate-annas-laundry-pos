@@ -345,3 +345,7 @@ body{padding-bottom:58px!important}
 @media(max-width:560px){
   .printer-interface-card,.printer-connect-actions{grid-template-columns:1fr}
 }
+
+.receipt-reprint{border:3px double #111;padding:7px;margin:0 auto 10px;text-align:center;font-size:22px;font-weight:1000;letter-spacing:.12em}
+.receipt-reprint small{font-size:11px;letter-spacing:.03em}
+@media print{.no-print-control{display:none!important}}

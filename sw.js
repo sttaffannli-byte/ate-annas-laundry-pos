@@ -1,4 +1,4 @@
-const CACHE="ate-annas-laundry-pos-v511-bluetooth-visible-fix";
+const CACHE="ate-annas-laundry-pos-v520-order-receipt-invoice-reprint";
 const ASSETS=[
   "/","/index.html","/styles.css","/app.js",
   "/booking.html","/booking.css","/booking.js",

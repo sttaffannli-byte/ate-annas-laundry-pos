@@ -1,25 +1,14 @@
-ATE ANNAS LAUNDRY POS V5.1.1 — BLUETOOTH VISIBLE FIX
+ATE ANNAS LAUNDRY POS V5.2
 
-ROOT CAUSE:
-The Printer Settings were inside the Settings page, and Settings was hidden for Cashier accounts.
+- ORDER RECEIPT replaces Official Receipt.
+- Permanent invoice number begins INV-000001.
+- Sequential invoices: INV-000002, INV-000003...
+- Existing orders are numbered oldest first.
+- First print is original.
+- Next print shows REPRINT and Reprint #.
+- Reprint keeps the same invoice number.
+- Includes Order No., cashier, payment method.
+- Works with 80mm System, Bluetooth BLE and USB printing.
 
-FIXED:
-- Printer & Settings menu is now visible to Admin and Cashier.
-- Bluetooth and USB printer buttons are visible to both roles.
-- Company Information and Security remain Admin-only.
-- Menu label changed to:
-  🖨️ Printer & Settings
-
-AFTER DEPLOYMENT:
-1. Login to POS.
-2. Click 🖨️ Printer & Settings in the left menu.
-3. Scroll to 80mm Thermal Printer Settings.
-4. Select System Printer, Direct Bluetooth BLE, or Direct USB.
-5. Press Connect Bluetooth or Connect USB.
-
-UPLOAD:
-Extract ZIP, upload ALL files to GitHub root, replace existing files,
-commit to main, wait for Cloudflare Success, then press CTRL + SHIFT + R.
-
-Confirm header:
-V5.1.1 BLUETOOTH VISIBLE FIX
+Upload ALL files to GitHub root, replace files, commit to main,
+wait for Cloudflare Success, then CTRL + SHIFT + R.
