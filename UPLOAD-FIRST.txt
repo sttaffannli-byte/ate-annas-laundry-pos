@@ -1,25 +1,354 @@
-ATE ANNAS LAUNDRY POS V5.1.1 — BLUETOOTH VISIBLE FIX
+*{box-sizing:border-box}:root{--bg:#f1f5f9;--panel:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--primary:#2563eb;--danger:#dc2626;--success:#16a34a;font-family:Inter,system-ui,Arial,sans-serif;color:var(--text)}body{margin:0;background:var(--bg)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font-weight:700}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;background:#fff}textarea{min-height:80px}label{display:grid;gap:6px;font-weight:700;font-size:14px;color:#334155}.hidden{display:none!important}.primary{background:var(--primary);border-color:var(--primary);color:#fff}.danger{background:var(--danger);border-color:var(--danger);color:#fff}.ghost{background:transparent;color:var(--danger)}.big{padding:14px 18px;font-size:17px}.full{width:100%}.login-view{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,#0f172a,#0ea5e9)}.login-card{width:min(440px,100%);background:#fff;border-radius:24px;padding:34px;box-shadow:0 25px 80px #02061766;display:grid;gap:16px;text-align:center}.login-card h1{margin:0}.login-card p,.login-card small{color:var(--muted)}.brand-mark{width:72px;height:72px;border-radius:22px;margin:auto;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:26px;font-weight:900}.brand-mark.small{width:44px;height:44px;border-radius:13px;font-size:16px;margin:0}.app{min-height:100vh;display:grid;grid-template-columns:245px 1fr}.sidebar{background:#0f172a;color:#fff;padding:18px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:12px}.brand strong,.brand span{display:block}.brand span{font-size:12px;color:#94a3b8}.sidebar nav{display:grid;gap:7px}.sidebar nav button{background:transparent;color:#cbd5e1;border-color:transparent;text-align:left}.sidebar nav button.active,.sidebar nav button:hover{background:#1e293b;color:#fff}.sidebar-bottom{margin-top:auto;display:grid;gap:10px;color:#cbd5e1}.sidebar-bottom button{background:#1e293b;color:#fff;border:0}.main{min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;position:sticky;top:0;z-index:10}.topbar h2{margin:0}.topbar span{font-size:13px;color:var(--muted)}.menu-btn{display:none}.status{color:var(--success);font-weight:700}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--success);margin-right:7px}.page{display:none;padding:22px}.page.active{display:block}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.panel h3{margin-top:0}.order-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.inline{display:grid;grid-template-columns:1fr auto;gap:8px}.section-head,.page-actions{display:flex;gap:10px;align-items:center;justify-content:space-between}.page-actions{margin-bottom:14px}.page-actions input{flex:1}.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0}.service-btn{min-height:105px;text-align:left;display:flex;flex-direction:column;gap:7px}.service-btn b{font-size:16px}.service-btn span{color:var(--muted);font-size:13px}.service-btn strong{margin-top:auto;color:var(--primary);font-size:19px}.order-items{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}.order-item{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:12px;border-bottom:1px solid var(--line);align-items:center}.order-item:last-child{border:0}.order-item small{color:var(--muted)}.empty{padding:28px;text-align:center;color:var(--muted)}.totals{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:12px}.totals>div{display:flex;justify-content:space-between;align-items:center}.totals input{width:130px;text-align:right}.totals .grand{font-size:24px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.cards article{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.cards span{display:block;color:var(--muted);font-weight:700}.cards b{display:block;font-size:28px;margin-top:8px}.table-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:auto}table{width:100%;border-collapse:collapse;min-width:820px}th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line)}th{background:#f8fafc;color:#475569;font-size:13px}td small{color:var(--muted)}.badge{display:inline-block;padding:4px 8px;border-radius:99px;font-size:12px;font-weight:800;background:#e2e8f0}.badge.ready{background:#dcfce7;color:#166534}.badge.overdue{background:#fee2e2;color:#991b1b}.badge.process{background:#dbeafe;color:#1d4ed8}.report-grid,.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.bar-row{display:grid;grid-template-columns:130px 1fr auto;gap:10px;align-items:center;margin:10px 0}.bar{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--primary)}dialog{border:0;border-radius:20px;padding:22px;box-shadow:0 30px 100px #02061766;width:min(760px,92vw)}dialog::backdrop{background:#0f172a99}.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.checkout-total{font-size:20px;padding:14px;background:#eff6ff;border-radius:12px;margin-bottom:14px}.checkout-total b{float:right;font-size:24px}.file-label{border:1px dashed var(--line);padding:12px;border-radius:10px;margin:10px 0}.toast{position:fixed;right:20px;bottom:20px;z-index:1000;background:#0f172a;color:#fff;border-radius:12px;padding:13px 16px;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:none}.claim{font-family:ui-monospace,monospace;max-width:420px;margin:auto;color:#000}.claim h2,.claim p{text-align:center;margin:4px 0}.claim hr{border:0;border-top:1px dashed #000}@media(max-width:1050px){.order-layout{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:30;transform:translateX(-100%);transition:.2s;width:250px}.sidebar.open{transform:none}.menu-btn{display:block}.topbar{padding:12px}.status{display:none}.page{padding:12px}.form-grid,.report-grid,.settings-grid,.cards{grid-template-columns:1fr}.service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.page-actions{flex-wrap:wrap}.page-actions>*{flex:1 1 45%}}@media print{body>*{display:none!important}#orderDialog[open]{display:block!important;position:static;box-shadow:none;width:auto;padding:0}#orderDialog .dialog-actions{display:none}}
+.dashboard-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+.status-board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.status-tile{border:1px solid var(--line);border-radius:14px;padding:16px;background:#f8fafc}
+.status-tile span{display:block;color:var(--muted);font-weight:700}
+.status-tile b{display:block;font-size:28px;margin-top:6px}
+.due-list{display:grid;gap:10px}
+.due-item{border:1px solid var(--line);border-left:5px solid #f59e0b;border-radius:12px;padding:12px;background:#fff}
+.due-item.overdue{border-left-color:#dc2626;background:#fef2f2}
+.due-item.ready{border-left-color:#16a34a;background:#f0fdf4}
+.due-item .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.dashboard-recent{margin-top:18px}
+@media(max-width:1050px){.dashboard-grid{grid-template-columns:1fr}.status-board{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.status-board{grid-template-columns:1fr}}
 
-ROOT CAUSE:
-The Printer Settings were inside the Settings page, and Settings was hidden for Cashier accounts.
+body{background:
+radial-gradient(circle at top left,rgba(37,99,235,.08),transparent 30%),
+radial-gradient(circle at top right,rgba(6,182,212,.08),transparent 28%),
+var(--bg)}
+.topbar{backdrop-filter:blur(14px);background:rgba(255,255,255,.92)}
+.panel,.cards article,.table-wrap{box-shadow:0 10px 30px rgba(15,23,42,.05)}
+button{transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.08)}
+.tracker-top{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:16px}
+.tracker-top h3{margin:0;font-size:24px}.tracker-top p{margin:5px 0 0;color:var(--muted)}
+.tracker-actions{display:flex;gap:10px;min-width:min(460px,100%)}
+.kanban-board{display:grid;grid-template-columns:repeat(6,minmax(230px,1fr));gap:14px;overflow-x:auto;padding-bottom:10px}
+.kanban-column{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:18px;min-height:520px;padding:12px;backdrop-filter:blur(10px)}
+.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 6px 12px}
+.kanban-head b{font-size:15px}.kanban-head span{background:#e2e8f0;border-radius:99px;padding:3px 8px;font-size:12px;font-weight:800}
+.kanban-list{display:grid;gap:10px}
+.kanban-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:left;box-shadow:0 8px 20px rgba(15,23,42,.05)}
+.kanban-card.rush{border-color:#f97316;box-shadow:0 8px 24px rgba(249,115,22,.12)}
+.kanban-card.vip{border-color:#8b5cf6;box-shadow:0 8px 24px rgba(139,92,246,.14)}
+.kanban-card .code{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:900}
+.kanban-card .customer{margin:7px 0 4px}.kanban-card .meta{font-size:12px;color:var(--muted)}
+.priority{display:inline-block;padding:3px 7px;border-radius:99px;font-size:10px;font-weight:900;background:#e2e8f0}
+.priority.rush{background:#ffedd5;color:#c2410c}.priority.vip{background:#ede9fe;color:#6d28d9}
+.kanban-card .card-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.kanban-card .card-actions button{padding:7px 8px;font-size:12px}
+.progress-strip{height:6px;border-radius:99px;background:#e2e8f0;overflow:hidden;margin-top:10px}
+.progress-strip i{display:block;height:100%;background:linear-gradient(90deg,#2563eb,#06b6d4)}
+@media(max-width:760px){.tracker-top{align-items:stretch;flex-direction:column}.tracker-actions{min-width:0}.kanban-board{grid-template-columns:repeat(6,260px)}}
 
-FIXED:
-- Printer & Settings menu is now visible to Admin and Cashier.
-- Bluetooth and USB printer buttons are visible to both roles.
-- Company Information and Security remain Admin-only.
-- Menu label changed to:
-  🖨️ Printer & Settings
+.network-status{
+  min-width:168px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 13px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#fff;
+  box-shadow:0 8px 20px rgba(15,23,42,.06)
+}
+.network-status b,.network-status small{display:block}
+.network-status small{font-size:11px;color:var(--muted)}
+.network-dot{
+  width:14px;height:14px;border-radius:50%;flex:0 0 14px;
+  box-shadow:0 0 0 0 currentColor
+}
+.network-status.online{color:#16a34a;background:#f0fdf4;border-color:#86efac}
+.network-status.online .network-dot{background:#22c55e;animation:onlinePulse 1.25s infinite}
+.network-status.offline{color:#dc2626;background:#fef2f2;border-color:#fca5a5}
+.network-status.offline .network-dot{background:#ef4444;animation:offlineBlink .85s infinite}
+@keyframes onlinePulse{
+  0%{box-shadow:0 0 0 0 rgba(34,197,94,.65);opacity:1}
+  70%{box-shadow:0 0 0 10px rgba(34,197,94,0);opacity:.85}
+  100%{box-shadow:0 0 0 0 rgba(34,197,94,0);opacity:1}
+}
+@keyframes offlineBlink{
+  0%,45%{opacity:1}
+  50%,100%{opacity:.25}
+}
+.offline-banner{
+  margin:12px 22px 0;
+  padding:12px 16px;
+  border-radius:14px;
+  background:#dc2626;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  box-shadow:0 12px 30px rgba(220,38,38,.18)
+}
+.offline-banner span{font-size:13px}
+.settings-note{color:var(--muted);font-size:13px;line-height:1.5}
+button,input,select,textarea{min-height:44px}
+.service-btn,.status-tile,.kanban-card{touch-action:manipulation}
+@media (pointer:coarse){
+  button{min-height:48px;padding:12px 16px}
+  input,select,textarea{min-height:48px;font-size:16px}
+  .sidebar nav button{min-height:50px}
+  .service-btn{min-height:120px}
+  .kanban-card .card-actions button{min-height:44px}
+}
+@media (min-width:768px) and (max-width:1180px){
+  .app{grid-template-columns:210px 1fr}
+  .sidebar{padding:14px}
+  .page{padding:16px}
+  .order-layout{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .service-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kanban-board{grid-template-columns:repeat(6,260px)}
+  .topbar{height:70px}
+}
+@media (orientation:portrait) and (max-width:900px){
+  .order-layout,.dashboard-grid,.report-grid,.settings-grid{grid-template-columns:1fr}
+  .service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .network-status{min-width:auto;padding:8px 10px}
+  .network-status small{display:none}
+  .offline-banner{margin:10px 12px 0;align-items:flex-start;flex-direction:column;gap:3px}
+}
 
-AFTER DEPLOYMENT:
-1. Login to POS.
-2. Click 🖨️ Printer & Settings in the left menu.
-3. Scroll to 80mm Thermal Printer Settings.
-4. Select System Printer, Direct Bluetooth BLE, or Direct USB.
-5. Press Connect Bluetooth or Connect USB.
+.booking-admin-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-bottom:18px}
+.booking-preview-actions{display:flex;gap:10px;margin-top:14px}
+.booking-help{margin-top:18px}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.how-grid article{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#f8fafc}
+.how-grid b{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--primary);color:#fff;flex:0 0 34px}
+@media(max-width:900px){.booking-admin-grid{grid-template-columns:1fr}.how-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.how-grid{grid-template-columns:1fr}.booking-preview-actions{flex-direction:column}}
 
-UPLOAD:
-Extract ZIP, upload ALL files to GitHub root, replace existing files,
-commit to main, wait for Cloudflare Success, then press CTRL + SHIFT + R.
+.booking-inbox-panel{margin-top:18px}
+.booking-inbox-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.booking-inbox-summary article{border:1px solid var(--line);border-radius:14px;padding:14px;background:#f8fafc}
+.booking-inbox-summary span{display:block;color:var(--muted);font-size:12px;font-weight:800}
+.booking-inbox-summary b{display:block;font-size:27px;margin-top:4px}
+.online-new{background:#dcfce7;color:#166534}
+.online-imported{background:#dbeafe;color:#1d4ed8}
+.online-cancelled{background:#fee2e2;color:#b91c1c}
+@media(max-width:700px){.booking-inbox-summary{grid-template-columns:1fr}}
 
-Confirm header:
-V5.1.1 BLUETOOTH VISIBLE FIX
+.version-label{
+  display:inline-block;
+  margin-top:3px;
+  padding:4px 9px;
+  border-radius:999px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.06em
+}
+.booking-inbox-panel{
+  border:2px solid #60a5fa;
+  box-shadow:0 16px 45px rgba(37,99,235,.12)
+}
+
+.realtime-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.realtime-status{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 9px;border-radius:999px;
+  background:#dcfce7;color:#166534;
+  font-size:10px;font-weight:900;letter-spacing:.05em
+}
+.realtime-status i{
+  width:8px;height:8px;border-radius:50%;background:#22c55e;
+  animation:realtimePulse 1s infinite
+}
+.realtime-status.paused{background:#fee2e2;color:#991b1b}
+.realtime-status.paused i{background:#ef4444;animation:offlineBlink .85s infinite}
+.realtime-popup{
+  position:fixed;right:20px;bottom:20px;z-index:9999;
+  width:min(420px,calc(100vw - 30px));
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;
+  padding:16px;border-radius:18px;
+  background:#0f172a;color:#fff;
+  box-shadow:0 24px 70px rgba(15,23,42,.35);
+  border:2px solid #38bdf8;
+  animation:popupIn .25s ease-out
+}
+.realtime-popup.hidden{display:none}
+.realtime-popup-icon{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+  background:#1d4ed8;font-size:24px
+}
+.realtime-popup b,.realtime-popup span{display:block}
+.realtime-popup span{font-size:13px;color:#dbeafe;margin-top:3px}
+.realtime-popup button{background:transparent;color:#fff;border:0;font-size:24px;min-height:36px}
+@keyframes realtimePulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+@keyframes popupIn{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.live-clock-card{min-width:220px;padding:8px 13px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff;color:#1e3a8a;text-align:right;box-shadow:0 8px 20px rgba(37,99,235,.08)}
+.live-date-ph{font-size:11px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.04em}
+.live-time-ph{font-size:20px;line-height:1.1;font-weight:900;font-variant-numeric:tabular-nums;margin:2px 0}
+.live-clock-card small{font-size:10px;color:#64748b}
+.inbox-live-clock{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:10px;font-weight:900;font-variant-numeric:tabular-nums}
+@media(max-width:850px){.live-clock-card{min-width:170px}.live-time-ph{font-size:16px}}
+@media(max-width:620px){.live-clock-card{grid-column:1/-1;width:100%;text-align:center}}
+
+.logo-setting-row{display:flex;align-items:center;gap:12px;margin:10px 0 14px}
+.company-logo-preview{max-width:150px;max-height:80px;object-fit:contain;border:1px solid var(--line);border-radius:12px;padding:6px;background:#fff}
+.receipt-logo{display:block;max-width:140px;max-height:75px;object-fit:contain;margin:0 auto 8px}
+.endshift-toolbar{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:16px}
+.endshift-toolbar label{min-width:190px}
+.endshift-cards{grid-template-columns:repeat(4,1fr)}
+@media(max-width:950px){.endshift-toolbar{align-items:stretch;flex-direction:column}.endshift-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.endshift-cards{grid-template-columns:1fr}}
+@media print{
+ body *{visibility:hidden!important}
+ #orderDialog,#orderDialog *{visibility:visible!important}
+ #orderDialog{position:absolute!important;inset:0!important;width:100%!important;max-width:none!important;border:0!important}
+ #orderDialog .dialog-actions{display:none!important}
+ .claim{margin:auto!important;box-shadow:none!important;border:0!important}
+ body[data-paper="58mm"] .claim{width:58mm!important;font-size:11px!important}
+ body[data-paper="80mm"] .claim{width:80mm!important;font-size:13px!important}
+ body[data-paper="A4"] .claim{width:180mm!important;font-size:15px!important}
+}
+
+.site-legal-footer{
+  margin:24px 22px 90px;
+  padding:18px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  line-height:1.7
+}
+.site-legal-footer nav{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:5px}
+.site-legal-footer a{color:var(--primary);font-weight:800;text-decoration:none}
+.cookie-banner{
+  position:fixed;
+  left:18px;right:18px;bottom:18px;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:16px 18px;
+  border:1px solid #bfdbfe;
+  border-radius:18px;
+  background:#0f172a;
+  color:#fff;
+  box-shadow:0 24px 70px rgba(15,23,42,.35)
+}
+.cookie-banner.hidden{display:none}
+.cookie-banner p{margin:4px 0;color:#dbeafe;font-size:12px;line-height:1.5}
+.cookie-banner a{color:#7dd3fc;font-size:12px;font-weight:800}
+.cookie-actions{display:flex;gap:10px;flex:0 0 auto}
+.cookie-actions button{white-space:nowrap}
+@media(max-width:760px){
+  .cookie-banner{flex-direction:column;align-items:stretch}
+  .cookie-actions{display:grid;grid-template-columns:1fr 1fr}
+}
+
+.fixed-copyright-bar{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9998;
+  min-height:42px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  background:#0f172a;
+  color:#ffffff;
+  border-top:2px solid #2563eb;
+  box-shadow:0 -8px 25px rgba(15,23,42,.28);
+  font-size:11px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:.02em
+}
+.fixed-copyright-bar a{
+  color:#7dd3fc;
+  font-weight:900;
+  text-decoration:none
+}
+body{padding-bottom:58px!important}
+.cookie-banner{bottom:62px!important}
+@media(max-width:680px){
+  .fixed-copyright-bar{gap:4px 10px;font-size:9px;line-height:1.25}
+  body{padding-bottom:72px!important}
+  .cookie-banner{bottom:76px!important}
+}
+@media print{
+  .fixed-copyright-bar{display:none!important}
+}
+
+.cash-counter-panel{margin-top:18px}
+.cash-counter-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.cash-counter-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cash-counter-grid section{border:1px solid var(--line);border-radius:16px;padding:14px;background:#f8fafc}
+.cash-counter-grid h4{margin:0 0 12px;color:#0f172a}
+.denomination-grid{display:grid;gap:10px}
+.denomination-grid label{display:grid;grid-template-columns:95px 90px 1fr;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}
+.denomination-grid label span{font-weight:900;color:#334155}
+.denomination-grid input{width:100%;text-align:center;font-weight:900}
+.denomination-grid b{text-align:right;color:#1d4ed8;font-variant-numeric:tabular-nums}
+.cash-counter-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.cash-counter-summary article{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.cash-counter-summary article span{font-size:12px;color:var(--muted);font-weight:800}
+.cash-counter-summary article b{font-size:20px;font-variant-numeric:tabular-nums}
+.cash-counter-summary article input{font-size:18px;font-weight:900}
+#varianceCard.variance-ok{border-color:#86efac;background:#f0fdf4}
+#varianceCard.variance-over{border-color:#93c5fd;background:#eff6ff}
+#varianceCard.variance-short{border-color:#fca5a5;background:#fef2f2}
+#varianceCard.variance-ok b{color:#15803d}
+#varianceCard.variance-over b{color:#1d4ed8}
+#varianceCard.variance-short b{color:#b91c1c}
+.cash-counter-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+@media(max-width:900px){.cash-counter-grid{grid-template-columns:1fr}.cash-counter-summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cash-counter-header{align-items:stretch;flex-direction:column}.denomination-grid label{grid-template-columns:80px 75px 1fr}.cash-counter-summary{grid-template-columns:1fr}.cash-counter-actions{display:grid;grid-template-columns:1fr 1fr}}
+
+.printer-interface-card{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:10px 0 14px
+}
+.printer-interface-card>div{
+  border:1px solid #bfdbfe;
+  background:#eff6ff;
+  border-radius:14px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px
+}
+.printer-interface-card b{color:#1e3a8a;font-size:12px}
+.printer-interface-card span{font-weight:900;color:#0f172a}
+.printer-connect-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:12px 0
+}
+.printer-status{
+  padding:11px 13px;
+  border-radius:12px;
+  font-weight:900;
+  font-size:12px;
+  margin-bottom:12px
+}
+.printer-status.disconnected{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.printer-status.connecting{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.printer-status.connected{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+@media(max-width:560px){
+  .printer-interface-card,.printer-connect-actions{grid-template-columns:1fr}
+}
+
+@media print{
+  .receipt-screen-only{
+    display:none!important;
+    visibility:hidden!important;
+  }
+}

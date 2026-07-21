@@ -1,59 +1,622 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Privacy & Cookies | ATE ANNAS LAUNDRY</title>
-<style>
-body{font-family:Arial,sans-serif;margin:0;background:#f8fafc;color:#0f172a;line-height:1.65}
-main{width:min(900px,calc(100% - 30px));margin:30px auto;background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px;box-shadow:0 14px 40px #0f172a0d}
-h1,h2{color:#1d4ed8}.notice{padding:12px 14px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:10px}
-footer{text-align:center;color:#64748b;font-size:12px;margin-top:30px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>ATE ANNAS LAUNDRY POS V2</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<main>
-<h1>Privacy & Cookies Policy</h1>
-<p><strong>Effective date:</strong> July 21, 2026</p>
-<p class="notice">This policy is a general template and may need legal review for your specific business, data practices and applicable privacy laws.</p>
+  <div id="toast" class="toast"></div>
 
-<h2>1. Information We Collect</h2>
-<p>We may collect customer name, mobile number, address, pickup or delivery schedule, service selection, order details, payment method, payment reference, notes and transaction history.</p>
+  <div id="realtimeBookingPopup" class="realtime-popup hidden" role="alert">
+    <div class="realtime-popup-icon">🔔</div>
+    <div>
+      <b>NEW ONLINE BOOKING RECEIVED</b>
+      <span id="realtimeBookingText">A new customer booking was received.</span>
+    </div>
+    <button id="closeRealtimePopupBtn" type="button">×</button>
+  </div>
 
-<h2>2. Why We Use Information</h2>
-<p>Information is used to process laundry orders, schedule pickup or delivery, contact customers, receive payments, prepare receipts, maintain records, provide customer support and improve operations.</p>
 
-<h2>3. Browser Storage and Cookies</h2>
-<p>The POS uses essential browser storage, including local storage and offline cache, to remember settings, login state, orders, payments, printer preferences, cookie choice and offline data. These are necessary for core operation.</p>
+  <section id="loginView" class="login-view">
+    <div class="login-card">
+      <div class="brand-mark">AA</div>
+      <h1>ATE ANNAS LAUNDRY POS V2</h1>
+      <p>Touchscreen Laundry Booking & Payment System</p>
+      <label>Username<input id="loginUser" value="admin" autocomplete="username"></label>
+      <label>PIN<input id="loginPin" type="password" inputmode="numeric" maxlength="6" value="1234"></label>
+      <button id="loginBtn" class="primary big">LOG IN</button>
+      <small>Admin: <b>admin / 1234</b> · Cashier: <b>cashier / 0000</b></small>
+    </div>
+  </section>
 
-<h2>4. Optional Cookies</h2>
-<p>This version does not use advertising cookies or optional analytics cookies. If such tools are added later, this policy and the cookie notice should be updated.</p>
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark small">AA</div>
+        <div><strong>ATE ANNAS</strong><span>LAUNDRY POS V2</span></div>
+      </div>
+      <nav>
+        <button data-page="dashboard" class="active">🏠 Dashboard</button>
+        <button data-page="tracker">🚦 Order Tracker</button>
+        <button data-page="booking">🌐 Online Booking</button>
+        <button data-page="new">🧺 New Order</button>
+        <button data-page="orders">📋 Orders</button>
+        <button data-page="customers">👥 Customers</button>
+        <button data-page="services">🧼 Services</button>
+        <button data-page="payments">💳 Payments</button>
+        <button data-page="expenses">🧾 Expenses</button>
+        <button data-page="reports">💵 End Shift & Cash Counter</button>
+        <button data-page="settings">🖨️ Printer & Settings</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div id="currentUser"></div>
+        <button id="logoutBtn">Log out</button>
+      </div>
+    </aside>
 
-<h2>5. Cloud Services</h2>
-<p>Online booking information may be stored using Cloudflare Pages, Functions and D1 database services. Data may be processed through those services to operate the booking system.</p>
+    <main class="main">
+      <header class="topbar">
+        <button id="menuBtn" class="menu-btn">☰</button>
+        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V5.1.2 RECEIPT PRINT CLEAN FIX</small></div><span id="clock"></span></div>
+        <div class="live-clock-card" aria-live="polite">
+          <div id="liveDatePH" class="live-date-ph">Loading date…</div>
+          <div id="liveTimePH" class="live-time-ph">--:--:-- --</div>
+          <small>Philippine Time · Asia/Manila</small>
+        </div>
+        <div id="networkStatus" class="network-status online" role="status" aria-live="polite">
+          <span class="network-dot"></span>
+          <div>
+            <b id="networkLabel">ONLINE</b>
+            <small id="networkHint">Connected and syncing</small>
+          </div>
+        </div>
+      </header>
 
-<h2>6. WhatsApp and Payment Providers</h2>
-<p>If customers use WhatsApp, GCash, Maya or bank transfer, those providers process information according to their own privacy policies and terms.</p>
 
-<h2>7. Data Retention</h2>
-<p>Records may be kept for operational, accounting, dispute-resolution and legal purposes. Local browser data remains on the device until deleted, restored from backup or browser storage is cleared.</p>
+      <section id="page-dashboard" class="page active">
+        <div class="cards">
+          <article><span>Orders Today</span><b id="dashOrdersToday">0</b></article>
+          <article><span>Sales Today</span><b id="dashSalesToday">₱0.00</b></article>
+          <article><span>Ready for Release</span><b id="dashReady">0</b></article>
+          <article><span>Overdue Orders</span><b id="dashOverdue">0</b></article>
+        </div>
 
-<h2>8. Data Security</h2>
-<p>Reasonable safeguards are used, but no online or local storage system is completely secure. Admin keys, login PINs and devices should be protected from unauthorized access.</p>
+        <div class="dashboard-grid">
+          <div class="panel">
+            <div class="section-head">
+              <h3>Order Status Board</h3>
+              <button id="goNewOrderBtn" class="primary">+ New Order</button>
+            </div>
+            <div id="statusBoard" class="status-board"></div>
+          </div>
 
-<h2>9. Customer Rights</h2>
-<p>Customers may request access, correction or deletion of their personal information, subject to legal, accounting and operational retention requirements.</p>
+          <div class="panel">
+            <h3>Due Soon / Overdue</h3>
+            <div id="dueSoonList" class="due-list"></div>
+          </div>
+        </div>
 
-<h2>10. Children</h2>
-<p>The service is intended for customers able to enter into a service transaction. Personal information should not be submitted by children without parent or guardian involvement.</p>
+        <div class="panel dashboard-recent">
+          <div class="section-head">
+            <h3>Recent Orders</h3>
+            <button id="goOrdersBtn">View All Orders</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Order</th><th>Customer</th><th>Due</th><th>Status</th><th>Balance</th><th>Action</th></tr></thead>
+              <tbody id="dashboardRecentOrders"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-<h2>11. Policy Changes</h2>
-<p>This policy may be updated when systems, services or legal requirements change.</p>
 
-<h2>12. Contact</h2>
-<p>Privacy questions may be sent through the contact details displayed by ATE ANNAS LAUNDRY.</p>
+      <section id="page-tracker" class="page">
+        <div class="tracker-top">
+          <div>
+            <h3>Live Laundry Workflow</h3>
+            <p>Move every order from Received to Released with one tap.</p>
+          </div>
+          <div class="tracker-actions">
+            <input id="trackerSearch" placeholder="Search order or customer">
+            <button id="trackerRefreshBtn">Refresh</button>
+          </div>
+        </div>
+        <div id="kanbanBoard" class="kanban-board"></div>
+      </section>
 
-<footer>© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.<br>Developed by JIMBOYLAUDE.LLC.INFO</footer>
-</main>
+
+      <section id="page-booking" class="page">
+        <div class="booking-admin-grid">
+          <div class="panel">
+            <h3>Customer Online Booking Page</h3>
+            <p class="settings-note">Customers can open the public booking page, choose Pickup or Delivery, enter their address and schedule, then send the booking request directly to your WhatsApp.</p>
+            <label>Public booking link
+              <div class="inline">
+                <input id="publicBookingLink" readonly>
+                <button id="copyBookingLinkBtn">Copy Link</button>
+              </div>
+            </label>
+            <div class="booking-preview-actions">
+              <button id="openBookingPageBtn" class="primary">Open Customer Page</button>
+              <button id="shareBookingBtn">Share Booking Link</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Booking Contact</h3>
+            <label>WhatsApp number
+              <input id="bookingWhatsapp" placeholder="Example: 639178575757">
+            </label>
+            <small class="settings-note">Use country code without + or spaces. Example: 639178575757.</small>
+            <label>Pickup service area
+              <textarea id="bookingArea" placeholder="Buting, Pasig City and nearby areas"></textarea>
+            </label>
+            <label>Minimum pickup amount
+              <input id="bookingMinimum" type="number" min="0" step="0.01">
+            </label>
+            <label>Admin sync key
+              <input id="bookingAdminKey" type="password" placeholder="Same as Cloudflare ADMIN_API_KEY">
+            </label>
+            <button id="saveBookingSettingsBtn" class="primary">Save Booking Settings</button>
+          </div>
+        </div>
+        
+        <div class="panel booking-inbox-panel">
+          <div class="section-head">
+            <div>
+              <h3>🔔 Automatic Online Booking Inbox</h3>
+              <div class="realtime-line">
+                <small id="bookingSyncText" class="settings-note">Waiting for sync…</small>
+                <span id="realtimeStatus" class="realtime-status active"><i></i> REALTIME ON</span><span id="inboxRealtimeClock" class="inbox-live-clock">--</span>
+              </div>
+            </div>
+            <div class="inline">
+              <button id="syncBookingsBtn" class="primary">Sync Now</button>
+            </div>
+          </div>
+          <div class="booking-inbox-summary">
+            <article><span>New / Received</span><b id="onlineReceivedCount">0</b></article>
+            <article><span>Imported to POS</span><b id="onlineImportedCount">0</b></article>
+            <article><span>Cancelled</span><b id="onlineCancelledCount">0</b></article>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Booking</th><th>Customer</th><th>Request</th><th>Schedule</th><th>Service</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="onlineBookingsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel booking-help">
+          <h3>How it works</h3>
+          <div class="how-grid">
+            <article><b>1</b><span>Customer opens your booking link.</span></article>
+            <article><b>2</b><span>Customer selects Pickup or Delivery and schedule.</span></article>
+            <article><b>3</b><span>The booking request is sent to your WhatsApp.</span></article>
+            <article><b>4</b><span>Staff confirms and creates the official laundry order.</span></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-new" class="page">
+        <div class="order-layout">
+          <div class="panel">
+            <h3>Customer & Schedule</h3>
+            <div class="form-grid">
+              <label>Customer
+                <div class="inline">
+                  <select id="orderCustomer"></select>
+                  <button id="quickCustomerBtn">+ New</button>
+                </div>
+              </label>
+              <label>Contact<input id="orderContact" readonly></label>
+              <label>Received date<input id="receivedDate" type="datetime-local"></label>
+              <label>Due date<input id="dueDate" type="datetime-local"></label>
+              <label>Pickup / Delivery
+                <select id="deliveryType"><option>Walk-in</option><option>Pickup</option><option>Delivery</option><option>Pickup & Delivery</option></select>
+              </label>
+              <label>Address<input id="deliveryAddress" placeholder="Required for pickup/delivery"></label>
+              <label>Special instructions<textarea id="orderNotes" placeholder="Stains, colors, delicate items..."></textarea></label>
+              <label>Priority<select id="orderPriority"><option>Normal</option><option>Rush</option><option>VIP</option></select></label>
+              <label>Order status
+                <select id="orderStatus"><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select>
+              </label>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-head"><h3>Services</h3><button id="clearOrderBtn" class="danger ghost">Clear</button></div>
+            <div id="serviceButtons" class="service-grid"></div>
+            <div id="orderItems" class="order-items"></div>
+            <div class="totals">
+              <div><span>Subtotal</span><b id="orderSubtotal">₱0.00</b></div>
+              <div><span>Discount</span><input id="orderDiscount" type="number" min="0" step="0.01" value="0"></div>
+              <div><span>Delivery fee</span><input id="deliveryFee" type="number" min="0" step="0.01" value="0"></div>
+              <div class="grand"><span>TOTAL</span><b id="orderTotal">₱0.00</b></div>
+            </div>
+            <button id="saveOrderBtn" class="primary big full">SAVE ORDER</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-orders" class="page">
+        <div class="cards">
+          <article><span>Received</span><b id="countReceived">0</b></article>
+          <article><span>In Process</span><b id="countProcess">0</b></article>
+          <article><span>Ready</span><b id="countReady">0</b></article>
+          <article><span>Overdue</span><b id="countOverdue">0</b></article>
+        </div>
+        <div class="page-actions">
+          <input id="ordersSearch" placeholder="Search order, customer, contact">
+          <select id="ordersStatusFilter"><option value="">All statuses</option><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Order</th><th>Customer</th><th>Received</th><th>Due</th><th>Status</th><th>Total</th><th>Balance</th><th>Action</th></tr></thead>
+          <tbody id="ordersTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-customers" class="page">
+        <div class="page-actions"><input id="customersSearch" placeholder="Search customer"><button id="addCustomerBtn" class="primary">+ Add Customer</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Contact</th><th>Address</th><th>Orders</th><th>Total Spent</th><th>Action</th></tr></thead>
+          <tbody id="customersTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-services" class="page">
+        <div class="page-actions"><input id="servicesSearch" placeholder="Search services"><button id="addServiceBtn" class="primary">+ Add Service</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Service</th><th>Pricing</th><th>Rate</th><th>Minimum</th><th>Active</th><th>Action</th></tr></thead>
+          <tbody id="servicesTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-payments" class="page">
+        <div class="cards">
+          <article><span>Collected Today</span><b id="paymentsToday">₱0.00</b></article>
+          <article><span>Outstanding Balance</span><b id="paymentsBalance">₱0.00</b></article>
+          <article><span>Cash</span><b id="paymentsCash">₱0.00</b></article>
+          <article><span>GCash</span><b id="paymentsGCash">₱0.00</b></article>
+          <article><span>Maya</span><b id="paymentsMaya">₱0.00</b></article>
+          <article><span>Bank</span><b id="paymentsBank">₱0.00</b></article>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead>
+          <tbody id="paymentsTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-expenses" class="page">
+        <div class="page-actions"><input id="expensesSearch" placeholder="Search expenses"><button id="addExpenseBtn" class="primary">+ Add Expense</button></div>
+        <div class="cards">
+          <article><span>Expenses Today</span><b id="expensesToday">₱0.00</b></article>
+          <article><span>Expenses This Month</span><b id="expensesMonth">₱0.00</b></article>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead>
+          <tbody id="expensesTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-reports" class="page">
+        <div class="panel endshift-toolbar">
+          <div>
+            <h3>End Shift / Daily Sales</h3>
+            <p class="settings-note">Hiwalay ang Cash, GCash, Maya at Bank Transfer.</p>
+          </div>
+          <label>Sales date<input id="endShiftDate" type="date"></label>
+          <button id="printEndShiftBtn" class="primary">Print End Shift</button>
+        </div>
+        <div class="cards endshift-cards">
+          <article><span>Total Collected</span><b id="endTotal">₱0.00</b></article>
+          <article><span>Cash</span><b id="endCash">₱0.00</b></article>
+          <article><span>GCash</span><b id="endGCash">₱0.00</b></article>
+          <article><span>Maya</span><b id="endMaya">₱0.00</b></article>
+          <article><span>Bank Transfer</span><b id="endBank">₱0.00</b></article>
+          <article><span>Expenses</span><b id="endExpenses">₱0.00</b></article>
+          <article><span>Net Cash Flow</span><b id="endNet">₱0.00</b></article>
+          <article><span>Orders Created</span><b id="endOrders">0</b></article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Order</th><th>Customer</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead>
+            <tbody id="endShiftTable"></tbody>
+          </table>
+        </div>
+
+        <div class="panel cash-counter-panel">
+          <div class="cash-counter-header">
+            <div>
+              <h3>Cash Drawer Bill & Coin Counter</h3>
+              <p class="settings-note">Ilagay ang dami ng bawat denomination. Automatic ang total at cash variance.</p>
+            </div>
+            <button id="resetCashCounterBtn" type="button">Reset Counter</button>
+          </div>
+
+          <div class="cash-counter-grid">
+            <section>
+              <h4>Philippine Bills</h4>
+              <div class="denomination-grid">
+                <label><span>₱1,000</span><input class="denom-input" data-value="1000" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱500</span><input class="denom-input" data-value="500" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱200</span><input class="denom-input" data-value="200" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱100</span><input class="denom-input" data-value="100" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱50</span><input class="denom-input" data-value="50" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱20</span><input class="denom-input" data-value="20" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+              </div>
+            </section>
+
+            <section>
+              <h4>Philippine Coins</h4>
+              <div class="denomination-grid">
+                <label><span>₱20 Coin</span><input class="denom-input" data-value="20" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱10</span><input class="denom-input" data-value="10" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱5</span><input class="denom-input" data-value="5" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱1</span><input class="denom-input" data-value="1" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱0.25</span><input class="denom-input" data-value="0.25" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>Other Cash</span><input id="otherCashAmount" type="number" min="0" step="0.01" value="0"><b id="otherCashTotal">₱0.00</b></label>
+              </div>
+            </section>
+          </div>
+
+          <div class="cash-counter-summary">
+            <article><span>Expected Cash Sales</span><b id="expectedDrawerCash">₱0.00</b></article>
+            <article><span>Opening Cash</span><input id="openingCashInput" type="number" min="0" step="0.01" value="0"></article>
+            <article><span>Cash Expenses / Payout</span><input id="cashPayoutInput" type="number" min="0" step="0.01" value="0"></article>
+            <article><span>Expected Drawer</span><b id="expectedDrawerTotal">₱0.00</b></article>
+            <article><span>Actual Counted Cash</span><b id="actualCountedCash">₱0.00</b></article>
+            <article id="varianceCard"><span>Cash Variance</span><b id="cashVariance">₱0.00</b></article>
+          </div>
+
+          <div class="cash-counter-actions">
+            <button id="saveCashCountBtn" class="primary" type="button">Save Cash Count</button>
+            <button id="printCashCountBtn" type="button">Print Cash Count</button>
+          </div>
+          <p id="cashCountSavedInfo" class="settings-note"></p>
+        </div>
+
+        <div class="report-grid">
+          <div class="panel"><h3>Order Status</h3><div id="statusBreakdown"></div></div>
+          <div class="panel"><h3>Top Services</h3><div id="topServices"></div></div>
+        </div>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="settings-grid">
+          <div class="panel admin-only-panel">
+            <h3>Company Information</h3>
+            <label>Company name<input id="storeName"></label>
+            <label>Address<textarea id="storeAddress"></textarea></label>
+            <label>Contact<input id="storeContact"></label>
+            <label>Company logo<input id="companyLogoInput" type="file" accept="image/png,image/jpeg,image/webp"></label>
+            <div class="logo-setting-row">
+              <img id="companyLogoPreview" class="company-logo-preview hidden" alt="Company logo preview">
+              <button id="removeLogoBtn" type="button">Remove Logo</button>
+            </div>
+            <button id="saveSettingsBtn" class="primary">Save Company Settings</button>
+          </div>
+          <div class="panel">
+            <h3>Receipt Settings</h3>
+            <label>Receipt heading<input id="receiptHeading" placeholder="OFFICIAL RECEIPT / CLAIM STUB"></label>
+            <label>Receipt footer<textarea id="receiptFooter"></textarea></label>
+            <label><input id="receiptShowLogo" type="checkbox"> Show company logo on receipt</label>
+            <label><input id="receiptShowCashier" type="checkbox"> Show cashier name</label>
+            <button id="saveReceiptSettingsBtn" class="primary">Save Receipt Settings</button>
+            <hr>
+            <h3>80mm Thermal Printer Settings</h3>
+            <div class="printer-interface-card">
+              <div><b>Receipt Size</b><span>80mm Thermal Receipt</span></div>
+              <div><b>Supported Interface</b><span>USB + Bluetooth</span></div>
+            </div>
+
+            <label>Printing connection
+              <select id="printerConnection">
+                <option value="system">System Printer — paired USB/Bluetooth</option>
+                <option value="bluetooth">Direct Bluetooth BLE</option>
+                <option value="usb">Direct USB</option>
+              </select>
+            </label>
+
+            <label>Receipt copies<input id="printerCopies" type="number" min="1" max="3" value="1"></label>
+            <label><input id="printerAutoPrint" type="checkbox"> Auto-print after payment</label>
+
+            <div class="printer-connect-actions">
+              <button id="connectBluetoothBtn" type="button">🔵 Connect Bluetooth</button>
+              <button id="connectUsbBtn" type="button">🔌 Connect USB</button>
+            </div>
+            <div id="printerConnectionStatus" class="printer-status disconnected">
+              Printer not connected
+            </div>
+
+            <p class="settings-note">
+              For most 80mm Bluetooth printers: pair the printer first in Android/Windows Bluetooth settings,
+              select <b>System Printer</b>, then press Print. Direct Bluetooth works only with compatible BLE ESC/POS printers.
+            </p>
+
+            <button id="savePrinterSettingsBtn">Save Printer Settings</button>
+            <button id="testPrintBtn" type="button">Test 80mm Print</button>
+          </div>
+          <div class="panel admin-only-panel">
+            <h3>Security</h3>
+            <label>Admin PIN<input id="adminPin" type="password" inputmode="numeric"></label>
+            <label>Cashier PIN<input id="cashierPin" type="password" inputmode="numeric"></label>
+            <button id="savePinsBtn">Update PINs</button>
+            <hr>
+            <h3>Tablet & Offline</h3>
+            <button id="installAppBtn" class="primary hidden">Install on this Tablet</button>
+            <p class="settings-note">The POS works offline after the first successful online load. Keep regular backups.</p>
+            <hr>
+            <h3>Backup</h3>
+            <button id="backupBtn">Download Backup</button>
+            <label class="file-label">Restore Backup<input id="restoreInput" type="file" accept=".json"></label>
+            <button id="resetDemoBtn" class="danger">Reset Demo Data</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="customerDialog">
+    <form method="dialog" id="customerForm">
+      <h3 id="customerDialogTitle">Add Customer</h3>
+      <input id="customerId" type="hidden">
+      <label>Name<input id="cName" required></label>
+      <label>Contact<input id="cContact" required></label>
+      <label>Address<textarea id="cAddress"></textarea></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="saveCustomerDialogBtn" class="primary" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="serviceDialog">
+    <form method="dialog" id="serviceForm">
+      <h3 id="serviceDialogTitle">Add Service</h3>
+      <input id="serviceId" type="hidden">
+      <label>Service name<input id="sName" required></label>
+      <label>Pricing type<select id="sType"><option value="kg">Per kilo</option><option value="piece">Per piece</option><option value="flat">Flat rate</option></select></label>
+      <label>Rate<input id="sRate" type="number" min="0" step="0.01" required></label>
+      <label>Minimum charge / quantity<input id="sMinimum" type="number" min="0" step="0.01" value="0"></label>
+      <label><input id="sActive" type="checkbox" checked> Active</label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="saveServiceDialogBtn" class="primary" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="serviceItemDialog">
+    <form method="dialog" id="serviceItemForm">
+      <h3 id="serviceItemTitle">Add Service</h3>
+      <input id="serviceItemId" type="hidden">
+      <label id="qtyLabel">Quantity<input id="serviceQty" type="number" min="0.1" step="0.1" value="1"></label>
+      <label>Remarks<input id="serviceRemarks" placeholder="Optional"></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="addServiceItemBtn" class="primary" value="default">Add</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="orderDialog">
+    <div id="orderDetails"></div>
+    <div class="dialog-actions"><button id="closeOrderBtn">Close</button><button id="printClaimBtn">Print Claim Stub</button><button id="paymentBtn" class="primary">Add Payment</button></div>
+  </dialog>
+
+  <dialog id="paymentDialog">
+    <form method="dialog" id="paymentForm">
+      <h3>Add Payment</h3>
+      <input id="paymentOrderId" type="hidden">
+      <div class="checkout-total">Balance <b id="paymentBalance">₱0.00</b></div>
+      <label>Payment method<select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Maya</option><option>Bank Transfer</option></select></label>
+      <label id="paymentReferenceWrap" class="hidden">Reference number<input id="paymentReference"></label>
+      <label>Amount<input id="paymentAmount" type="number" min="0.01" step="0.01"></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="savePaymentBtn" class="primary" value="default">Save Payment</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="expenseDialog">
+    <form method="dialog" id="expenseForm">
+      <h3>Add Expense</h3>
+      <label>Date<input id="expenseDate" type="date"></label>
+      <label>Category<select id="expenseCategory"><option>Detergent</option><option>Fabric Conditioner</option><option>Utilities</option><option>Salary</option><option>Delivery</option><option>Repair & Maintenance</option><option>Other</option></select></label>
+      <label>Description<input id="expenseDescription"></label>
+      <label>Amount<input id="expenseAmount" type="number" min="0.01" step="0.01"></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="saveExpenseBtn" class="primary" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+
+  <footer class="site-legal-footer">
+    <div>© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.</div>
+    <div>DEVELOPED BY <strong>JIMBOYLAUDE.LLC.INFO</strong></div>
+    <nav>
+      <a href="/terms.html" target="_blank" rel="noopener">Terms & Conditions</a>
+      <a href="/privacy-cookies.html" target="_blank" rel="noopener">Privacy & Cookies</a>
+    </nav>
+  </footer>
+
+  <div id="cookieBanner" class="cookie-banner hidden" role="dialog" aria-live="polite" aria-label="Cookie notice">
+    <div>
+      <b>Cookie Notice</b>
+      <p>This site uses essential browser storage to keep POS settings, offline data, login state and booking preferences. Optional analytics cookies are not used.</p>
+      <a href="/privacy-cookies.html" target="_blank" rel="noopener">Read Privacy & Cookies Policy</a>
+    </div>
+    <div class="cookie-actions">
+      <button id="rejectCookiesBtn" type="button">Essential Only</button>
+      <button id="acceptCookiesBtn" type="button" class="primary">Accept</button>
+    </div>
+  </div>
+
+
+  <div class="fixed-copyright-bar">
+    <span>© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.</span>
+    <span>DEVELOPED BY <strong>JIMBOYLAUDE.LLC.INFO</strong></span>
+    <span>
+      <a href="/terms.html" target="_blank" rel="noopener">TERMS</a>
+      ·
+      <a href="/privacy-cookies.html" target="_blank" rel="noopener">PRIVACY & COOKIES</a>
+    </span>
+  </div>
+<script>
+  (function () {
+    "use strict";
+    const TZ = "Asia/Manila";
+
+    function updateStableClock() {
+      const now = new Date();
+      const dateEl = document.getElementById("liveDatePH");
+      const timeEl = document.getElementById("liveTimePH");
+      const inboxEl = document.getElementById("inboxRealtimeClock");
+
+      try {
+        const dateText = new Intl.DateTimeFormat("en-PH", {
+          timeZone: TZ,
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }).format(now);
+
+        const timeText = new Intl.DateTimeFormat("en-PH", {
+          timeZone: TZ,
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true
+        }).format(now);
+
+        const compact = new Intl.DateTimeFormat("en-PH", {
+          timeZone: TZ,
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true
+        }).format(now);
+
+        if (dateEl) dateEl.textContent = dateText;
+        if (timeEl) timeEl.textContent = timeText;
+        if (inboxEl) inboxEl.textContent = compact + " PH";
+      } catch (error) {
+        if (dateEl) dateEl.textContent = now.toLocaleDateString("en-PH");
+        if (timeEl) timeEl.textContent = now.toLocaleTimeString("en-PH");
+      }
+    }
+
+    window.__ATE_ANNAS_UPDATE_CLOCK__ = updateStableClock;
+    updateStableClock();
+    window.setInterval(updateStableClock, 1000);
+    document.addEventListener("DOMContentLoaded", updateStableClock);
+
+    // Remove obsolete cached workers before loading the stable release.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations()
+        .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+        .catch(() => {});
+    }
+  })();
+  </script>
+  <script defer src="/app.js?v=5.0.0-stable"></script>
+
 </body>
 </html>
