@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>Book Laundry Pickup & Delivery</title>
+  <link rel="stylesheet" href="/booking.css">
+</head>
+<body>
+  <main class="booking-shell">
+    <header class="hero">
+      <div class="logo">AA</div>
+      <div>
+        <span class="eyebrow">ONLINE LAUNDRY BOOKING</span>
+        <h1 id="bookingStoreName">ATE ANNAS LAUNDRY</h1>
+        <p>Schedule your laundry pickup or delivery in a few taps.</p>
+      </div>
+      <div id="customerNetwork" class="customer-network online"><i></i><b>ONLINE</b></div>
+    </header>
+
+    <section class="steps">
+      <span class="active">1. Details</span><span>2. Service</span><span>3. Confirm</span>
+    </section>
+
+    <form id="bookingForm">
+      <section class="card">
+        <h2>Your Information</h2>
+        <div class="grid">
+          <label>Full name<input id="bName" required autocomplete="name"></label>
+          <label>Mobile number<input id="bMobile" required inputmode="tel" autocomplete="tel"></label>
+          <label class="full">Complete address<textarea id="bAddress" required autocomplete="street-address" placeholder="House no., street, barangay, city, landmark"></textarea></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Pickup & Delivery</h2>
+        <div class="choice-grid">
+          <label class="choice"><input type="radio" name="type" value="Pickup" checked><span>🚚 Pickup Only<small>We collect your laundry.</small></span></label>
+          <label class="choice"><input type="radio" name="type" value="Delivery"><span>📦 Delivery Only<small>For existing ready orders.</small></span></label>
+          <label class="choice"><input type="radio" name="type" value="Pickup & Delivery"><span>🔄 Pickup & Delivery<small>Complete door-to-door service.</small></span></label>
+        </div>
+        <div class="grid">
+          <label>Preferred date<input id="bDate" type="date" required></label>
+          <label>Preferred time<select id="bTime"><option>8:00 AM - 10:00 AM</option><option>10:00 AM - 12:00 PM</option><option>1:00 PM - 3:00 PM</option><option>3:00 PM - 5:00 PM</option><option>5:00 PM - 7:00 PM</option></select></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Laundry Service</h2>
+        <div id="publicServices" class="public-services"></div>
+        <div class="grid">
+          <label>Estimated weight / quantity<input id="bQty" type="number" min="1" step="0.5" value="4"></label>
+          <label>Promo code<input id="bPromo" placeholder="Optional"></label>
+          <label class="full">Special instructions<textarea id="bNotes" placeholder="Stains, delicate items, separate whites, gate instructions..."></textarea></label>
+        </div>
+      </section>
+
+      <section class="card summary">
+        <h2>Booking Summary</h2>
+        <div><span>Selected service</span><b id="summaryService">—</b></div>
+        <div><span>Estimated service amount</span><b id="summaryAmount">₱0.00</b></div>
+        <div><span>Minimum pickup</span><b id="summaryMinimum">₱0.00</b></div>
+        <p id="bookingAreaText"></p>
+        <label class="agree"><input id="bAgree" type="checkbox" required> I understand that the final amount will be confirmed after actual weighing and inspection.</label>
+        <button class="submit" type="submit">SEND BOOKING REQUEST</button>
+      </section>
+    </form>
+
+    <dialog id="successDialog">
+      <div class="success-icon">✓</div>
+      <h2>Booking Request Ready</h2>
+      <p>Your request code is:</p>
+      <strong id="requestCode"></strong>
+      <p>Tap below to send the request to ATE ANNAS through WhatsApp.</p>
+      <button id="sendWhatsappBtn">SEND TO WHATSAPP</button>
+      <button id="closeSuccessBtn" class="secondary">Close</button>
+    </dialog>
+  </main>
+  <script src="/booking.js"></script>
+</body>
+</html>
