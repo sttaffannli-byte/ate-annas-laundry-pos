@@ -1,7 +1,7 @@
-const CACHE="ate-annas-laundry-pos-v513-online-booking-route-fix";
+const CACHE="ate-annas-laundry-pos-v511-bluetooth-visible-fix";
 const ASSETS=[
   "/","/index.html","/styles.css","/app.js",
-  "/booking.html","/booking/","/booking/index.html","/booking.css","/booking.js",
+  "/booking.html","/booking.css","/booking.js",
   "/terms.html","/privacy-cookies.html",
   "/manifest.webmanifest","/_routes.json"
 ];

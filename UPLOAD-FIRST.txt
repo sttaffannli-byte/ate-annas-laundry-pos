@@ -1,27 +1,25 @@
-ATE ANNAS LAUNDRY POS V5.1.3 — ONLINE BOOKING ROUTE FIX
+ATE ANNAS LAUNDRY POS V5.1.1 — BLUETOOTH VISIBLE FIX
 
-PROBLEM:
-Opening /booking displayed the contents of _routes.json instead of the online booking page.
+ROOT CAUSE:
+The Printer Settings were inside the Settings page, and Settings was hidden for Cashier accounts.
 
 FIXED:
-- Added a real /booking/index.html page.
-- Added _redirects for /booking and /online-booking.
-- Updated _routes.json so Cloudflare Functions only handle /api/*.
-- Existing /booking.html still works.
+- Printer & Settings menu is now visible to Admin and Cashier.
+- Bluetooth and USB printer buttons are visible to both roles.
+- Company Information and Security remain Admin-only.
+- Menu label changed to:
+  🖨️ Printer & Settings
 
-AFTER DEPLOYMENT, THESE URLS SHOULD OPEN THE ONLINE BOOKING PAGE:
-- /booking
-- /booking/
-- /booking.html
-- /online-booking
+AFTER DEPLOYMENT:
+1. Login to POS.
+2. Click 🖨️ Printer & Settings in the left menu.
+3. Scroll to 80mm Thermal Printer Settings.
+4. Select System Printer, Direct Bluetooth BLE, or Direct USB.
+5. Press Connect Bluetooth or Connect USB.
 
 UPLOAD:
-1. Extract this ZIP.
-2. Upload ALL files AND the booking folder to the GitHub repository root.
-3. Replace existing files.
-4. Commit to main.
-5. Wait for Cloudflare deployment Success.
-6. Open /booking and press CTRL + SHIFT + R.
+Extract ZIP, upload ALL files to GitHub root, replace existing files,
+commit to main, wait for Cloudflare Success, then press CTRL + SHIFT + R.
 
-IMPORTANT:
-The booking folder must be uploaded. It contains booking/index.html.
+Confirm header:
+V5.1.1 BLUETOOTH VISIBLE FIX

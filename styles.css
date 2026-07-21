@@ -345,10 +345,3 @@ body{padding-bottom:58px!important}
 @media(max-width:560px){
   .printer-interface-card,.printer-connect-actions{grid-template-columns:1fr}
 }
-
-@media print{
-  .receipt-screen-only{
-    display:none!important;
-    visibility:hidden!important;
-  }
-}
