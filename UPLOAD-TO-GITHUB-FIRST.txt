@@ -1,0 +1,25 @@
+ATE ANNAS LAUNDRY POS V3.1 — GITHUB READY
+
+IMPORTANT:
+1. EXTRACT this ZIP first.
+2. Open the extracted folder.
+3. Upload ALL files and folders inside it to the ROOT of:
+   staffannli-byte/ate-annas-laundry-pos
+4. Replace existing files when GitHub asks.
+5. Commit directly to main.
+6. Wait for Cloudflare Pages automatic deployment.
+7. Press Ctrl + F5 on the live POS.
+
+This package already contains:
+- Correct D1 Database ID
+- DB binding
+- Automatic Online Booking Inbox
+- Automatic Received order import
+- Customer booking page
+- Cloudflare Pages Functions
+- schema.sql
+
+Cloudflare secret still required:
+Name: ADMIN_API_KEY
+Set it in Cloudflare Pages > Settings > Variables and secrets.
+Then enter the exact same value inside POS > Online Booking > Admin sync key.
