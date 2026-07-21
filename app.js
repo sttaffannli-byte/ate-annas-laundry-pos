@@ -11,7 +11,7 @@ const nowLocal=()=>{const d=new Date(),o=d.getTimezoneOffset();return new Date(d
 const plusHours=h=>{const d=new Date();d.setHours(d.getHours()+h);const o=d.getTimezoneOffset();return new Date(d-o*60000).toISOString().slice(0,16)};
 
 const defaults={
- settings:{storeName:"ATE ANNAS LAUNDRY",address:"Buting, Pasig City",contact:"0917-857-5757",footer:"Thank you! Please present this claim stub upon release.",adminPin:"1234",cashierPin:"0000",bookingWhatsapp:"639178575757",bookingArea:"Buting, Pasig City and nearby areas",bookingMinimum:150,bookingAdminKey:"",logoData:"",receiptHeading:"OFFICIAL RECEIPT / CLAIM STUB",receiptShowLogo:true,receiptShowCashier:true,printerPaperSize:"80mm",printerCopies:1,printerAutoPrint:false},
+ settings:{storeName:"ATE ANNAS LAUNDRY",address:"Buting, Pasig City",contact:"0917-857-5757",footer:"Thank you! Please present this claim stub upon release.",adminPin:"1234",cashierPin:"0000",bookingWhatsapp:"639178575757",bookingArea:"Buting, Pasig City and nearby areas",bookingMinimum:150,bookingAdminKey:"",logoData:"",receiptHeading:"OFFICIAL RECEIPT / CLAIM STUB",receiptShowLogo:true,receiptShowCashier:true,printerPaperSize:"80mm",printerConnection:"system",printerCopies:1,printerAutoPrint:false},
  customers:[{id:"c1",name:"Walk-in Customer",contact:"",address:""}],
  services:[
   {id:"s1",name:"Wash, Dry & Fold",type:"kg",rate:45,minimum:4,active:true},
@@ -32,10 +32,12 @@ function login(){const u=$("#loginUser").value.trim().toLowerCase(),p=$("#loginP
 function logout(){activeUser=null;db.currentUser=null;save();$("#appView").classList.add("hidden");$("#loginView").classList.remove("hidden")}
 function applyRole(){
  const admin=activeUser?.role==="Admin";
- $$('[data-page="services"],[data-page="expenses"],[data-page="settings"]').forEach(b=>b.classList.toggle("hidden",!admin));
+ $$('[data-page="services"],[data-page="expenses"]').forEach(b=>b.classList.toggle("hidden",!admin));
  const reports=$('[data-page="reports"]');if(reports)reports.classList.remove("hidden");
+ const settings=$('[data-page="settings"]');if(settings)settings.classList.remove("hidden");
+ $$(".admin-only-panel").forEach(panel=>panel.classList.toggle("hidden",!admin));
 }
-function navigate(p){$$(".sidebar nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));$$(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+p));$("#pageTitle").textContent={dashboard:"Dashboard",tracker:"Order Tracker",booking:"Online Booking",new:"New Order",orders:"Orders",customers:"Customers",services:"Services",payments:"Payments",expenses:"Expenses",reports:"End Shift & Cash Counter",settings:"Settings"}[p];$(".sidebar").classList.remove("open");renderAll()}
+function navigate(p){$$(".sidebar nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));$$(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+p));$("#pageTitle").textContent={dashboard:"Dashboard",tracker:"Order Tracker",booking:"Online Booking",new:"New Order",orders:"Orders",customers:"Customers",services:"Services",payments:"Payments",expenses:"Expenses",reports:"End Shift & Cash Counter",settings:"Printer & Settings"}[p];$(".sidebar").classList.remove("open");renderAll()}
 function serviceCharge(s,qty){qty=Number(qty);if(s.type==="kg")return Math.max(qty,Number(s.minimum||0))*Number(s.rate);if(s.type==="piece")return Math.max(qty,Number(s.minimum||1))*Number(s.rate);return Number(s.rate)}
 function orderTotals(){const subtotal=currentItems.reduce((a,i)=>{const s=db.services.find(x=>x.id===i.serviceId);return a+serviceCharge(s,i.qty)},0),discount=Math.max(0,Number($("#orderDiscount").value||0)),fee=Math.max(0,Number($("#deliveryFee").value||0));return{subtotal,discount,fee,total:Math.max(0,subtotal-discount+fee)}}
 function renderServiceButtons(){$("#serviceButtons").innerHTML=db.services.filter(s=>s.active).map(s=>`<button class="service-btn" data-service="${s.id}"><b>${esc(s.name)}</b><span>${s.type==="kg"?"Per kilo":s.type==="piece"?"Per piece":"Flat rate"}</span><strong>${money(s.rate)}</strong></button>`).join("");$$("[data-service]").forEach(b=>b.onclick=()=>openServiceItem(b.dataset.service))}
@@ -198,13 +200,212 @@ function printEndShift(){
  const w=window.open("","_blank","width=700,height=800");w.document.write(`<html><head><title>End Shift ${d}</title><style>body{font-family:Arial;padding:24px}h1,h2,p{text-align:center}table{width:100%;border-collapse:collapse;margin-top:18px}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}.r{text-align:right}</style></head><body>${logo}<h1>${esc(db.settings.storeName)}</h1><p>${esc(db.settings.address)}<br>${esc(db.settings.contact)}</p><h2>END SHIFT SALES — ${esc(d)}</h2><table><tr><td>Cash</td><td class="r">${money(cash)}</td></tr><tr><td>GCash</td><td class="r">${money(gcash)}</td></tr><tr><td>Maya</td><td class="r">${money(maya)}</td></tr><tr><td>Bank Transfer</td><td class="r">${money(bank)}</td></tr><tr><th>Total Collected</th><th class="r">${money(total)}</th></tr><tr><td>Expenses</td><td class="r">${money(exp)}</td></tr><tr><th>Net Cash Flow</th><th class="r">${money(total-exp)}</th></tr></table><p>Printed: ${new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"full",timeStyle:"medium"}).format(new Date())}</p></body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)
 }
 function renderSettings(){
- const s=db.settings;$("#storeName").value=s.storeName;$("#storeAddress").value=s.address;$("#storeContact").value=s.contact;$("#receiptFooter").value=s.footer;$("#receiptHeading").value=s.receiptHeading;$("#receiptShowLogo").checked=!!s.receiptShowLogo;$("#receiptShowCashier").checked=!!s.receiptShowCashier;$("#printerPaperSize").value=s.printerPaperSize||"80mm";$("#printerCopies").value=s.printerCopies||1;$("#printerAutoPrint").checked=!!s.printerAutoPrint;$("#adminPin").value=s.adminPin;$("#cashierPin").value=s.cashierPin;const p=$("#companyLogoPreview");if(s.logoData){p.src=s.logoData;p.classList.remove("hidden")}else p.classList.add("hidden")
+ const s=db.settings;$("#storeName").value=s.storeName;$("#storeAddress").value=s.address;$("#storeContact").value=s.contact;$("#receiptFooter").value=s.footer;$("#receiptHeading").value=s.receiptHeading;$("#receiptShowLogo").checked=!!s.receiptShowLogo;$("#receiptShowCashier").checked=!!s.receiptShowCashier;if($("#printerConnection"))$("#printerConnection").value=s.printerConnection||"system";$("#printerCopies").value=s.printerCopies||1;$("#printerAutoPrint").checked=!!s.printerAutoPrint;$("#adminPin").value=s.adminPin;$("#cashierPin").value=s.cashierPin;const p=$("#companyLogoPreview");if(s.logoData){p.src=s.logoData;p.classList.remove("hidden")}else p.classList.add("hidden")
 }
 function saveSettings(){Object.assign(db.settings,{storeName:$("#storeName").value.trim()||"ATE ANNAS LAUNDRY",address:$("#storeAddress").value.trim(),contact:$("#storeContact").value.trim()});save();renderSettings();toast("Company settings saved")}
 function saveReceiptSettings(){Object.assign(db.settings,{receiptHeading:$("#receiptHeading").value.trim(),footer:$("#receiptFooter").value.trim(),receiptShowLogo:$("#receiptShowLogo").checked,receiptShowCashier:$("#receiptShowCashier").checked});save();toast("Receipt settings saved")}
-function savePrinterSettings(){Object.assign(db.settings,{printerPaperSize:$("#printerPaperSize").value,printerCopies:Math.max(1,Math.min(3,Number($("#printerCopies").value||1))),printerAutoPrint:$("#printerAutoPrint").checked});save();toast("Printer settings saved")}
+function savePrinterSettings(){Object.assign(db.settings,{printerPaperSize:"80mm",printerConnection:$("#printerConnection")?.value||"system",printerCopies:Math.max(1,Math.min(3,Number($("#printerCopies").value||1))),printerAutoPrint:$("#printerAutoPrint").checked});save();updatePrinterStatus();toast("80mm printer settings saved")}
 function handleLogo(file){if(!file)return;if(file.size>1500000)return toast("Logo must be below 1.5MB");const r=new FileReader();r.onload=()=>{db.settings.logoData=r.result;save();renderSettings();toast("Company logo updated")};r.readAsDataURL(file)}
-function printReceipt(){document.body.dataset.paper=db.settings.printerPaperSize||"80mm";for(let i=0;i<Number(db.settings.printerCopies||1);i++)setTimeout(()=>window.print(),i*700)}
+
+let bluetoothPrinterDevice=null;
+let bluetoothPrinterCharacteristic=null;
+let usbPrinterDevice=null;
+let usbPrinterEndpoint=null;
+
+function setPrinterStatus(message,state="disconnected"){
+  const el=$("#printerConnectionStatus");
+  if(!el)return;
+  el.textContent=message;
+  el.className="printer-status "+state;
+}
+
+function updatePrinterStatus(){
+  const mode=db.settings.printerConnection||"system";
+  if(mode==="system"){
+    setPrinterStatus("SYSTEM PRINTER: Use an 80mm USB/Bluetooth printer paired in Windows or Android.","connected");
+  }else if(mode==="bluetooth"&&bluetoothPrinterCharacteristic){
+    setPrinterStatus("BLUETOOTH CONNECTED: "+(bluetoothPrinterDevice?.name||"80mm BLE Printer"),"connected");
+  }else if(mode==="usb"&&usbPrinterDevice){
+    setPrinterStatus("USB CONNECTED: "+(usbPrinterDevice.productName||"80mm USB Printer"),"connected");
+  }else{
+    setPrinterStatus(mode==="bluetooth"?"Bluetooth printer not connected":"USB printer not connected","disconnected");
+  }
+}
+
+async function connectBluetoothPrinter(){
+  if(!navigator.bluetooth){
+    setPrinterStatus("Direct Bluetooth is not supported by this browser. Pair the printer in device settings and use System Printer.","disconnected");
+    toast("Use Chrome/Edge on Android or select System Printer");
+    return;
+  }
+  try{
+    setPrinterStatus("Searching for Bluetooth printer…","connecting");
+    const optionalServices=[
+      0xffe0,0xff00,0x18f0,
+      "0000ffe0-0000-1000-8000-00805f9b34fb",
+      "0000ff00-0000-1000-8000-00805f9b34fb",
+      "000018f0-0000-1000-8000-00805f9b34fb",
+      "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+    ];
+    bluetoothPrinterDevice=await navigator.bluetooth.requestDevice({
+      acceptAllDevices:true,
+      optionalServices
+    });
+    const server=await bluetoothPrinterDevice.gatt.connect();
+    const services=await server.getPrimaryServices();
+    let writable=null;
+    for(const service of services){
+      const chars=await service.getCharacteristics();
+      writable=chars.find(c=>c.properties.writeWithoutResponse||c.properties.write);
+      if(writable)break;
+    }
+    if(!writable)throw new Error("No writable printer characteristic found");
+    bluetoothPrinterCharacteristic=writable;
+    bluetoothPrinterDevice.addEventListener("gattserverdisconnected",()=>{
+      bluetoothPrinterCharacteristic=null;
+      updatePrinterStatus();
+    });
+    db.settings.printerConnection="bluetooth";
+    save();
+    if($("#printerConnection"))$("#printerConnection").value="bluetooth";
+    setPrinterStatus("BLUETOOTH CONNECTED: "+(bluetoothPrinterDevice.name||"80mm BLE Printer"),"connected");
+    toast("Bluetooth printer connected");
+  }catch(error){
+    console.error(error);
+    setPrinterStatus("Bluetooth connection failed: "+error.message,"disconnected");
+    toast("Bluetooth connection failed");
+  }
+}
+
+async function connectUsbPrinter(){
+  if(!navigator.usb){
+    setPrinterStatus("Direct USB is not supported by this browser. Use System Printer.","disconnected");
+    toast("Use Chrome/Edge or select System Printer");
+    return;
+  }
+  try{
+    setPrinterStatus("Select your 80mm USB printer…","connecting");
+    usbPrinterDevice=await navigator.usb.requestDevice({filters:[]});
+    await usbPrinterDevice.open();
+    if(usbPrinterDevice.configuration===null)await usbPrinterDevice.selectConfiguration(1);
+
+    let iface=null,endpoint=null;
+    for(const candidate of usbPrinterDevice.configuration.interfaces){
+      const alt=candidate.alternate;
+      const outEndpoint=alt.endpoints.find(e=>e.direction==="out");
+      if(outEndpoint){iface=candidate;endpoint=outEndpoint;break}
+    }
+    if(!iface||!endpoint)throw new Error("No USB printer output endpoint found");
+    await usbPrinterDevice.claimInterface(iface.interfaceNumber);
+    usbPrinterEndpoint=endpoint.endpointNumber;
+
+    db.settings.printerConnection="usb";
+    save();
+    if($("#printerConnection"))$("#printerConnection").value="usb";
+    setPrinterStatus("USB CONNECTED: "+(usbPrinterDevice.productName||"80mm USB Printer"),"connected");
+    toast("USB printer connected");
+  }catch(error){
+    console.error(error);
+    usbPrinterDevice=null;usbPrinterEndpoint=null;
+    setPrinterStatus("USB connection failed: "+error.message,"disconnected");
+    toast("USB connection failed");
+  }
+}
+
+function centerText(text,width=42){
+  const clean=String(text||"").slice(0,width);
+  const pad=Math.max(0,Math.floor((width-clean.length)/2));
+  return " ".repeat(pad)+clean;
+}
+function receiptLine(left,right,width=42){
+  left=String(left||"");right=String(right||"");
+  const spaces=Math.max(1,width-left.length-right.length);
+  return (left+" ".repeat(spaces)+right).slice(0,width);
+}
+function buildEscPosReceipt(){
+  const o=db.orders.find(x=>x.id===openedOrderId)||db.orders[0];
+  if(!o)throw new Error("No order available");
+  const c=db.customers.find(x=>x.id===o.customerId);
+  const paid=paidFor(o.id),balance=Math.max(0,o.total-paid);
+  const width=42;
+  const lines=[
+    centerText(db.settings.storeName,width),
+    centerText(db.settings.address,width),
+    centerText(db.settings.contact,width),
+    centerText(db.settings.receiptHeading||"OFFICIAL RECEIPT",width),
+    "-".repeat(width),
+    "ORDER: "+o.code,
+    new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"short"}).format(new Date(o.createdAt)),
+    "CUSTOMER: "+(c?.name||"Unknown"),
+    "-".repeat(width)
+  ];
+  o.items.forEach(i=>{
+    const s=db.services.find(x=>x.id===i.serviceId);
+    lines.push(receiptLine((s?.name||"Service")+" x"+i.qty,money(serviceCharge(s,i.qty)).replace("₱","P"),width));
+  });
+  lines.push(
+    "-".repeat(width),
+    receiptLine("SUBTOTAL",money(o.subtotal).replace("₱","P"),width),
+    receiptLine("DISCOUNT","-"+money(o.discount).replace("₱","P"),width),
+    receiptLine("DELIVERY",money(o.deliveryFee).replace("₱","P"),width),
+    receiptLine("TOTAL",money(o.total).replace("₱","P"),width),
+    receiptLine("PAID",money(paid).replace("₱","P"),width),
+    receiptLine("BALANCE",money(balance).replace("₱","P"),width),
+    "-".repeat(width),
+    centerText(db.settings.footer,width),
+    centerText("THANK YOU!",width),
+    "\n\n\n"
+  );
+  const encoder=new TextEncoder();
+  const body=encoder.encode(lines.join("\n"));
+  const init=new Uint8Array([0x1b,0x40]);
+  const cut=new Uint8Array([0x1d,0x56,0x00]);
+  const bytes=new Uint8Array(init.length+body.length+cut.length);
+  bytes.set(init,0);bytes.set(body,init.length);bytes.set(cut,init.length+body.length);
+  return bytes;
+}
+
+async function sendBluetoothBytes(bytes){
+  if(!bluetoothPrinterCharacteristic)throw new Error("Connect Bluetooth printer first");
+  const chunkSize=bluetoothPrinterCharacteristic.properties.writeWithoutResponse?100:20;
+  for(let i=0;i<bytes.length;i+=chunkSize){
+    const chunk=bytes.slice(i,i+chunkSize);
+    if(bluetoothPrinterCharacteristic.properties.writeWithoutResponse){
+      await bluetoothPrinterCharacteristic.writeValueWithoutResponse(chunk);
+    }else{
+      await bluetoothPrinterCharacteristic.writeValue(chunk);
+    }
+    await new Promise(r=>setTimeout(r,20));
+  }
+}
+
+async function sendUsbBytes(bytes){
+  if(!usbPrinterDevice||usbPrinterEndpoint===null)throw new Error("Connect USB printer first");
+  const result=await usbPrinterDevice.transferOut(usbPrinterEndpoint,bytes);
+  if(result.status!=="ok")throw new Error("USB print transfer failed");
+}
+
+async function directThermalPrint(mode){
+  const bytes=buildEscPosReceipt();
+  const copies=Math.max(1,Math.min(3,Number(db.settings.printerCopies||1)));
+  for(let i=0;i<copies;i++){
+    if(mode==="bluetooth")await sendBluetoothBytes(bytes);
+    else await sendUsbBytes(bytes);
+  }
+  toast("80mm receipt sent to printer");
+}
+
+async function printReceipt(){
+ db.settings.printerPaperSize="80mm";
+ document.body.dataset.paper="80mm";
+ const mode=db.settings.printerConnection||"system";
+ if(mode==="system"){
+   for(let i=0;i<Number(db.settings.printerCopies||1);i++)setTimeout(()=>window.print(),i*700);
+   return;
+ }
+ try{await directThermalPrint(mode)}
+ catch(error){console.error(error);toast(error.message||"Printer error");updatePrinterStatus()}
+}
 function testPrint(){const old=openedOrderId;if(db.orders[0]){showOrder(db.orders[0].id);setTimeout(printReceipt,300)}else toast("Create an order first to test print")}
 function savePins(){if($("#adminPin").value.length<4||$("#cashierPin").value.length<4)return toast("PIN must be at least 4 digits");db.settings.adminPin=$("#adminPin").value;db.settings.cashierPin=$("#cashierPin").value;save();toast("PINs updated")}
 function backup(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:"application/json"}));a.download=`ate-annas-laundry-backup-${day(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
@@ -568,7 +769,7 @@ function bind(){
  $("#orderDiscount").oninput=renderOrderItems;$("#deliveryFee").oninput=renderOrderItems;$("#clearOrderBtn").onclick=clearOrder;$("#saveOrderBtn").onclick=saveOrder;$("#ordersSearch").oninput=renderOrders;$("#ordersStatusFilter").onchange=renderOrders;
  $("#closeOrderBtn").onclick=()=>$("#orderDialog").close();$("#printClaimBtn").onclick=printReceipt;$("#paymentBtn").onclick=openPayment;$("#paymentMethod").onchange=e=>$("#paymentReferenceWrap").classList.toggle("hidden",e.target.value==="Cash");$("#savePaymentBtn").onclick=savePayment;
  $("#addExpenseBtn").onclick=()=>{$("#expenseDate").value=day(new Date());$("#expenseDescription").value="";$("#expenseAmount").value="";$("#expenseDialog").showModal()};$("#saveExpenseBtn").onclick=saveExpense;$("#expensesSearch").oninput=renderExpenses;
- if($("#closeRealtimePopupBtn"))$("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup")?.classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#saveReceiptSettingsBtn").onclick=saveReceiptSettings;$("#savePrinterSettingsBtn").onclick=savePrinterSettings;$("#testPrintBtn").onclick=testPrint;$("#companyLogoInput").onchange=e=>handleLogo(e.target.files[0]);$("#removeLogoBtn").onclick=()=>{db.settings.logoData="";save();renderSettings();toast("Logo removed")};$("#endShiftDate").value=reportDateKey(new Date());$("#endShiftDate").onchange=()=>{renderReports();loadCashCounter()};$("#printEndShiftBtn").onclick=printEndShift;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
+ if($("#closeRealtimePopupBtn"))$("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup")?.classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#saveReceiptSettingsBtn").onclick=saveReceiptSettings;$("#savePrinterSettingsBtn").onclick=savePrinterSettings;$("#testPrintBtn").onclick=testPrint;$("#connectBluetoothBtn").onclick=connectBluetoothPrinter;$("#connectUsbBtn").onclick=connectUsbPrinter;$("#printerConnection").onchange=e=>{db.settings.printerConnection=e.target.value;save();updatePrinterStatus()};updatePrinterStatus();$("#companyLogoInput").onchange=e=>handleLogo(e.target.files[0]);$("#removeLogoBtn").onclick=()=>{db.settings.logoData="";save();renderSettings();toast("Logo removed")};$("#endShiftDate").value=reportDateKey(new Date());$("#endShiftDate").onchange=()=>{renderReports();loadCashCounter()};$("#printEndShiftBtn").onclick=printEndShift;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
 }
 function startStablePOS(){
  try{if(window.__ATE_ANNAS_UPDATE_CLOCK__)window.__ATE_ANNAS_UPDATE_CLOCK__();else updatePhilippineClock()}catch(e){console.error("Clock module error:",e)}

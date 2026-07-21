@@ -50,7 +50,7 @@
         <button data-page="payments">💳 Payments</button>
         <button data-page="expenses">🧾 Expenses</button>
         <button data-page="reports">💵 End Shift & Cash Counter</button>
-        <button data-page="settings">⚙️ Settings</button>
+        <button data-page="settings">🖨️ Printer & Settings</button>
       </nav>
       <div class="sidebar-bottom">
         <div id="currentUser"></div>
@@ -61,7 +61,7 @@
     <main class="main">
       <header class="topbar">
         <button id="menuBtn" class="menu-btn">☰</button>
-        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V5.0 STABLE COMPLETE</small></div><span id="clock"></span></div>
+        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V5.1.1 BLUETOOTH VISIBLE FIX</small></div><span id="clock"></span></div>
         <div class="live-clock-card" aria-live="polite">
           <div id="liveDatePH" class="live-date-ph">Loading date…</div>
           <div id="liveTimePH" class="live-time-ph">--:--:-- --</div>
@@ -388,7 +388,7 @@
 
       <section id="page-settings" class="page">
         <div class="settings-grid">
-          <div class="panel">
+          <div class="panel admin-only-panel">
             <h3>Company Information</h3>
             <label>Company name<input id="storeName"></label>
             <label>Address<textarea id="storeAddress"></textarea></label>
@@ -408,14 +408,40 @@
             <label><input id="receiptShowCashier" type="checkbox"> Show cashier name</label>
             <button id="saveReceiptSettingsBtn" class="primary">Save Receipt Settings</button>
             <hr>
-            <h3>Printer Settings</h3>
-            <label>Paper size<select id="printerPaperSize"><option value="58mm">58mm Thermal</option><option value="80mm">80mm Thermal</option><option value="A4">A4</option></select></label>
+            <h3>80mm Thermal Printer Settings</h3>
+            <div class="printer-interface-card">
+              <div><b>Receipt Size</b><span>80mm Thermal Receipt</span></div>
+              <div><b>Supported Interface</b><span>USB + Bluetooth</span></div>
+            </div>
+
+            <label>Printing connection
+              <select id="printerConnection">
+                <option value="system">System Printer — paired USB/Bluetooth</option>
+                <option value="bluetooth">Direct Bluetooth BLE</option>
+                <option value="usb">Direct USB</option>
+              </select>
+            </label>
+
             <label>Receipt copies<input id="printerCopies" type="number" min="1" max="3" value="1"></label>
             <label><input id="printerAutoPrint" type="checkbox"> Auto-print after payment</label>
+
+            <div class="printer-connect-actions">
+              <button id="connectBluetoothBtn" type="button">🔵 Connect Bluetooth</button>
+              <button id="connectUsbBtn" type="button">🔌 Connect USB</button>
+            </div>
+            <div id="printerConnectionStatus" class="printer-status disconnected">
+              Printer not connected
+            </div>
+
+            <p class="settings-note">
+              For most 80mm Bluetooth printers: pair the printer first in Android/Windows Bluetooth settings,
+              select <b>System Printer</b>, then press Print. Direct Bluetooth works only with compatible BLE ESC/POS printers.
+            </p>
+
             <button id="savePrinterSettingsBtn">Save Printer Settings</button>
-            <button id="testPrintBtn" type="button">Test Print</button>
+            <button id="testPrintBtn" type="button">Test 80mm Print</button>
           </div>
-          <div class="panel">
+          <div class="panel admin-only-panel">
             <h3>Security</h3>
             <label>Admin PIN<input id="adminPin" type="password" inputmode="numeric"></label>
             <label>Cashier PIN<input id="cashierPin" type="password" inputmode="numeric"></label>

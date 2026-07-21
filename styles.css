@@ -308,3 +308,40 @@ body{padding-bottom:58px!important}
 .cash-counter-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
 @media(max-width:900px){.cash-counter-grid{grid-template-columns:1fr}.cash-counter-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.cash-counter-header{align-items:stretch;flex-direction:column}.denomination-grid label{grid-template-columns:80px 75px 1fr}.cash-counter-summary{grid-template-columns:1fr}.cash-counter-actions{display:grid;grid-template-columns:1fr 1fr}}
+
+.printer-interface-card{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:10px 0 14px
+}
+.printer-interface-card>div{
+  border:1px solid #bfdbfe;
+  background:#eff6ff;
+  border-radius:14px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px
+}
+.printer-interface-card b{color:#1e3a8a;font-size:12px}
+.printer-interface-card span{font-weight:900;color:#0f172a}
+.printer-connect-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:12px 0
+}
+.printer-status{
+  padding:11px 13px;
+  border-radius:12px;
+  font-weight:900;
+  font-size:12px;
+  margin-bottom:12px
+}
+.printer-status.disconnected{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.printer-status.connecting{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.printer-status.connected{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+@media(max-width:560px){
+  .printer-interface-card,.printer-connect-actions{grid-template-columns:1fr}
+}

@@ -1,4 +1,4 @@
-const CACHE="ate-annas-laundry-pos-v500-stable";
+const CACHE="ate-annas-laundry-pos-v511-bluetooth-visible-fix";
 const ASSETS=[
   "/","/index.html","/styles.css","/app.js",
   "/booking.html","/booking.css","/booking.js",

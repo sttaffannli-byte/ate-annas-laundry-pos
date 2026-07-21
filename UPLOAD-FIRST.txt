@@ -1,30 +1,25 @@
-ATE ANNAS LAUNDRY POS V5.0 STABLE COMPLETE
+ATE ANNAS LAUNDRY POS V5.1.1 — BLUETOOTH VISIBLE FIX
 
-STABILITY FIXES
-- Philippine clock runs independently before the main POS loads.
-- app.js is deferred until the full page is ready.
-- Old service workers and stale caches are removed.
-- HTML, JavaScript and CSS use network-first updates.
-- Main modules initialize separately so one error cannot stop the whole POS.
-- End Shift & Bill/Coin Counter is visible to Admin and Cashier.
+ROOT CAUSE:
+The Printer Settings were inside the Settings page, and Settings was hidden for Cashier accounts.
 
-FEATURES INCLUDED
-- Realtime online booking inbox
-- Customer online add-to-cart
-- Receipt and printer settings
-- Editable company name and logo
-- Daily End Shift by Cash, GCash, Maya and Bank
-- Philippine bill and coin counter with variance
-- Copyright, developer credit, terms and cookies
-- Philippine realtime date and time
+FIXED:
+- Printer & Settings menu is now visible to Admin and Cashier.
+- Bluetooth and USB printer buttons are visible to both roles.
+- Company Information and Security remain Admin-only.
+- Menu label changed to:
+  🖨️ Printer & Settings
 
-UPLOAD
-1. Extract this ZIP.
-2. Upload ALL files to the GitHub repository root.
-3. Replace every existing file.
-4. Commit directly to main.
-5. Wait until Cloudflare deployment says Success.
-6. Open /health.html first.
-7. Confirm “JavaScript: WORKING”.
-8. Open the POS and press CTRL + SHIFT + R once.
-9. Confirm the header says V5.0 STABLE COMPLETE.
+AFTER DEPLOYMENT:
+1. Login to POS.
+2. Click 🖨️ Printer & Settings in the left menu.
+3. Scroll to 80mm Thermal Printer Settings.
+4. Select System Printer, Direct Bluetooth BLE, or Direct USB.
+5. Press Connect Bluetooth or Connect USB.
+
+UPLOAD:
+Extract ZIP, upload ALL files to GitHub root, replace existing files,
+commit to main, wait for Cloudflare Success, then press CTRL + SHIFT + R.
+
+Confirm header:
+V5.1.1 BLUETOOTH VISIBLE FIX
