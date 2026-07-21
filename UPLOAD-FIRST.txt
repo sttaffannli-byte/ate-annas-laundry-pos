@@ -1,0 +1,24 @@
+ATE ANNAS LAUNDRY POS V4.1 — NO RIDER
+
+1. EXTRACT this ZIP.
+2. Upload ALL files and folders inside the extracted folder to:
+   staffannli-byte/ate-annas-laundry-pos
+3. Replace existing files.
+4. Commit directly to main.
+5. Wait for a new Cloudflare deployment marked just now.
+6. Open the live POS and press CTRL + F5.
+7. Confirm the header shows V4.1 AUTOMATIC ONLINE BOOKING.
+
+Included:
+- Automatic Online Booking Inbox
+- Customer booking saved to D1
+- Automatic Received order import
+- Pickup and delivery details
+- Tablet-ready design
+- Online/offline indicator
+- No rider feature
+
+Keep these Cloudflare settings:
+- D1 binding name: DB
+- Database: ate-annas-laundry-db
+- Secret: ADMIN_API_KEY
