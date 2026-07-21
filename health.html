@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATE ANNAS POS Health Check</title>
+<style>body{font-family:Arial;background:#f8fafc;padding:24px;color:#0f172a}.card{max-width:700px;margin:auto;background:#fff;padding:24px;border-radius:18px;border:1px solid #e2e8f0}.ok{color:#15803d}.bad{color:#b91c1c}code{background:#f1f5f9;padding:3px 6px;border-radius:6px}</style>
+</head>
+<body><div class="card"><h1>V5 Stable Health Check</h1><p id="js" class="bad">JavaScript: checking…</p><p id="clock">Philippine time: checking…</p><p>Expected release: <code>V5.0 STABLE COMPLETE</code></p><p><a href="/">Open POS</a> · <a href="/booking.html">Open Online Booking</a></p></div>
+<script>
+document.getElementById("js").textContent="JavaScript: WORKING";
+document.getElementById("js").className="ok";
+setInterval(()=>document.getElementById("clock").textContent="Philippine time: "+new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"full",timeStyle:"medium"}).format(new Date()),1000);
+</script></body></html>

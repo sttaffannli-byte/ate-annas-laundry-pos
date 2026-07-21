@@ -27,11 +27,15 @@ const defaults={
 let db=load(),activeUser=null,currentItems=[],openedOrderId=null;
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x?{...structuredClone(defaults),...x,settings:{...defaults.settings,...x.settings}}:structuredClone(defaults)}catch{return structuredClone(defaults)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function toast(m){const t=$("#toast");if(!t){console.log(m);return}t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
 function login(){const u=$("#loginUser").value.trim().toLowerCase(),p=$("#loginPin").value;const role=u==="admin"&&p===db.settings.adminPin?"Admin":u==="cashier"&&p===db.settings.cashierPin?"Cashier":null;if(!role)return toast("Invalid username or PIN");activeUser={username:u,role};db.currentUser=activeUser;save();$("#loginView").classList.add("hidden");$("#appView").classList.remove("hidden");navigate("dashboard");$("#currentUser").innerHTML=`<b>${role}</b><br><small>${u}</small>`;applyRole();renderAll()}
 function logout(){activeUser=null;db.currentUser=null;save();$("#appView").classList.add("hidden");$("#loginView").classList.remove("hidden")}
-function applyRole(){const admin=activeUser?.role==="Admin";$$('[data-page="services"],[data-page="expenses"],[data-page="reports"],[data-page="settings"]').forEach(b=>b.classList.toggle("hidden",!admin))}
-function navigate(p){$$(".sidebar nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));$$(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+p));$("#pageTitle").textContent={dashboard:"Dashboard",tracker:"Order Tracker",booking:"Online Booking",new:"New Order",orders:"Orders",customers:"Customers",services:"Services",payments:"Payments",expenses:"Expenses",reports:"Reports",settings:"Settings"}[p];$(".sidebar").classList.remove("open");renderAll()}
+function applyRole(){
+ const admin=activeUser?.role==="Admin";
+ $$('[data-page="services"],[data-page="expenses"],[data-page="settings"]').forEach(b=>b.classList.toggle("hidden",!admin));
+ const reports=$('[data-page="reports"]');if(reports)reports.classList.remove("hidden");
+}
+function navigate(p){$$(".sidebar nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));$$(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+p));$("#pageTitle").textContent={dashboard:"Dashboard",tracker:"Order Tracker",booking:"Online Booking",new:"New Order",orders:"Orders",customers:"Customers",services:"Services",payments:"Payments",expenses:"Expenses",reports:"End Shift & Cash Counter",settings:"Settings"}[p];$(".sidebar").classList.remove("open");renderAll()}
 function serviceCharge(s,qty){qty=Number(qty);if(s.type==="kg")return Math.max(qty,Number(s.minimum||0))*Number(s.rate);if(s.type==="piece")return Math.max(qty,Number(s.minimum||1))*Number(s.rate);return Number(s.rate)}
 function orderTotals(){const subtotal=currentItems.reduce((a,i)=>{const s=db.services.find(x=>x.id===i.serviceId);return a+serviceCharge(s,i.qty)},0),discount=Math.max(0,Number($("#orderDiscount").value||0)),fee=Math.max(0,Number($("#deliveryFee").value||0));return{subtotal,discount,fee,total:Math.max(0,subtotal-discount+fee)}}
 function renderServiceButtons(){$("#serviceButtons").innerHTML=db.services.filter(s=>s.active).map(s=>`<button class="service-btn" data-service="${s.id}"><b>${esc(s.name)}</b><span>${s.type==="kg"?"Per kilo":s.type==="piece"?"Per piece":"Flat rate"}</span><strong>${money(s.rate)}</strong></button>`).join("");$$("[data-service]").forEach(b=>b.onclick=()=>openServiceItem(b.dataset.service))}
@@ -66,6 +70,113 @@ function renderPayments(){
 }
 function renderExpenses(){const q=$("#expensesSearch").value.toLowerCase(),td=day(new Date()),tm=month(new Date());$("#expensesToday").textContent=money(db.expenses.filter(e=>e.date===td).reduce((a,e)=>a+e.amount,0));$("#expensesMonth").textContent=money(db.expenses.filter(e=>e.date.startsWith(tm)).reduce((a,e)=>a+e.amount,0));$("#expensesTable").innerHTML=db.expenses.filter(e=>JSON.stringify(e).toLowerCase().includes(q)).map(e=>`<tr><td>${esc(e.date)}</td><td>${esc(e.category)}</td><td>${esc(e.description)}</td><td>${money(e.amount)}</td><td><button data-del-expense="${e.id}" class="danger">Delete</button></td></tr>`).join("");$$("[data-del-expense]").forEach(b=>b.onclick=()=>{if(confirm("Delete this expense?")){db.expenses=db.expenses.filter(e=>e.id!==b.dataset.delExpense);save();renderAll()}})}
 function saveExpense(e){e.preventDefault();db.expenses.unshift({id:uid("exp"),date:$("#expenseDate").value,category:$("#expenseCategory").value,description:$("#expenseDescription").value.trim(),amount:Number($("#expenseAmount").value)});save();$("#expenseDialog").close();renderAll();toast("Expense saved")}
+
+function cashCounterStorageKey(){
+  return "ate-annas-cash-count-"+($("#endShiftDate")?.value||reportDateKey(new Date()));
+}
+function getExpectedCashForSelectedDate(){
+  const selected=$("#endShiftDate")?.value||reportDateKey(new Date());
+  return db.payments.filter(p=>reportDateKey(p.date)===selected&&p.method==="Cash").reduce((a,p)=>a+Number(p.amount||0),0);
+}
+function calculateCashCounter(){
+  let actual=0;
+  document.querySelectorAll(".denom-input").forEach(input=>{
+    const qty=Math.max(0,Number(input.value||0));
+    const value=Number(input.dataset.value||0);
+    const subtotal=qty*value;
+    actual+=subtotal;
+    const totalEl=input.closest("label")?.querySelector(".denom-total");
+    if(totalEl)totalEl.textContent=money(subtotal);
+  });
+  const other=Math.max(0,Number($("#otherCashAmount")?.value||0));
+  actual+=other;
+  if($("#otherCashTotal"))$("#otherCashTotal").textContent=money(other);
+
+  const expectedCash=getExpectedCashForSelectedDate();
+  const opening=Math.max(0,Number($("#openingCashInput")?.value||0));
+  const payout=Math.max(0,Number($("#cashPayoutInput")?.value||0));
+  const expectedDrawer=expectedCash+opening-payout;
+  const variance=actual-expectedDrawer;
+
+  $("#expectedDrawerCash").textContent=money(expectedCash);
+  $("#expectedDrawerTotal").textContent=money(expectedDrawer);
+  $("#actualCountedCash").textContent=money(actual);
+  $("#cashVariance").textContent=(variance>0?"+":"")+money(variance);
+
+  const card=$("#varianceCard");
+  card.classList.remove("variance-ok","variance-over","variance-short");
+  if(Math.abs(variance)<0.01)card.classList.add("variance-ok");
+  else if(variance>0)card.classList.add("variance-over");
+  else card.classList.add("variance-short");
+
+  return {actual,expectedCash,opening,payout,expectedDrawer,variance};
+}
+function collectCashCounterData(){
+  const denominations=[...document.querySelectorAll(".denom-input")].map(input=>({
+    value:Number(input.dataset.value||0),
+    qty:Math.max(0,Number(input.value||0)),
+    label:input.closest("label")?.querySelector("span")?.textContent||""
+  }));
+  return {
+    date:$("#endShiftDate")?.value||reportDateKey(new Date()),
+    denominations,
+    otherCash:Math.max(0,Number($("#otherCashAmount")?.value||0)),
+    ...calculateCashCounter(),
+    savedAt:new Date().toISOString(),
+    cashier:activeUser?.name||activeUser?.username||""
+  };
+}
+function saveCashCounter(){
+  const data=collectCashCounterData();
+  localStorage.setItem(cashCounterStorageKey(),JSON.stringify(data));
+  $("#cashCountSavedInfo").textContent="Saved: "+new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"medium"}).format(new Date(data.savedAt));
+  toast("Cash count saved");
+}
+function loadCashCounter(){
+  const raw=localStorage.getItem(cashCounterStorageKey());
+  document.querySelectorAll(".denom-input").forEach(i=>i.value=0);
+  if($("#otherCashAmount"))$("#otherCashAmount").value=0;
+  if($("#openingCashInput"))$("#openingCashInput").value=0;
+  if($("#cashPayoutInput"))$("#cashPayoutInput").value=0;
+  $("#cashCountSavedInfo").textContent="";
+  if(raw){
+    try{
+      const data=JSON.parse(raw);
+      const inputs=[...document.querySelectorAll(".denom-input")];
+      data.denominations?.forEach((d,idx)=>{if(inputs[idx])inputs[idx].value=d.qty||0});
+      $("#otherCashAmount").value=data.otherCash||0;
+      $("#openingCashInput").value=data.opening||0;
+      $("#cashPayoutInput").value=data.payout||0;
+      if(data.savedAt)$("#cashCountSavedInfo").textContent="Saved: "+new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"medium"}).format(new Date(data.savedAt));
+    }catch(e){console.error("Cash count load error",e)}
+  }
+  calculateCashCounter();
+}
+function resetCashCounter(){
+  document.querySelectorAll(".denom-input").forEach(i=>i.value=0);
+  $("#otherCashAmount").value=0;
+  $("#openingCashInput").value=0;
+  $("#cashPayoutInput").value=0;
+  calculateCashCounter();
+  $("#cashCountSavedInfo").textContent="Counter reset. Not yet saved.";
+}
+function printCashCount(){
+  const d=collectCashCounterData();
+  const rows=d.denominations.filter(x=>x.qty>0).map(x=>`<tr><td>${x.label}</td><td>${x.qty}</td><td style="text-align:right">${money(x.value*x.qty)}</td></tr>`).join("")||'<tr><td colspan="3">No denominations entered.</td></tr>';
+  const status=Math.abs(d.variance)<0.01?"BALANCED":d.variance>0?"OVER":"SHORT";
+  const w=window.open("","_blank","width=720,height=850");
+  w.document.write(`<html><head><title>Cash Count ${d.date}</title><style>body{font-family:Arial;padding:24px;color:#111}h1,h2,p{text-align:center}table{width:100%;border-collapse:collapse;margin:18px 0}td,th{padding:8px;border-bottom:1px solid #ddd}th{text-align:left}.r{text-align:right}.summary td{font-weight:bold}.status{font-size:22px;font-weight:900;text-align:center;padding:12px;border:2px solid #111;margin-top:16px}</style></head><body><h1>${esc(db.settings.storeName)}</h1><p>${esc(db.settings.address)}<br>${esc(db.settings.contact)}</p><h2>END SHIFT CASH COUNT</h2><p>Date: ${esc(d.date)}<br>Cashier: ${esc(d.cashier)}</p><table><thead><tr><th>Denomination</th><th>Qty</th><th class="r">Subtotal</th></tr></thead><tbody>${rows}<tr><td>Other Cash</td><td></td><td class="r">${money(d.otherCash)}</td></tr></tbody></table><table class="summary"><tr><td>Expected Cash Sales</td><td class="r">${money(d.expectedCash)}</td></tr><tr><td>Opening Cash</td><td class="r">${money(d.opening)}</td></tr><tr><td>Cash Expenses / Payout</td><td class="r">-${money(d.payout)}</td></tr><tr><td>Expected Drawer</td><td class="r">${money(d.expectedDrawer)}</td></tr><tr><td>Actual Counted Cash</td><td class="r">${money(d.actual)}</td></tr><tr><td>Variance</td><td class="r">${d.variance>0?"+":""}${money(d.variance)}</td></tr></table><div class="status">${status}</div><p>Printed: ${new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"full",timeStyle:"medium"}).format(new Date())}</p></body></html>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),300);
+}
+function setupCashCounter(){
+  document.querySelectorAll(".denom-input").forEach(i=>i.addEventListener("input",calculateCashCounter));
+  ["otherCashAmount","openingCashInput","cashPayoutInput"].forEach(id=>$("#"+id)?.addEventListener("input",calculateCashCounter));
+  $("#resetCashCounterBtn")?.addEventListener("click",resetCashCounter);
+  $("#saveCashCountBtn")?.addEventListener("click",saveCashCounter);
+  $("#printCashCountBtn")?.addEventListener("click",printCashCount);
+  loadCashCounter();
+}
+
 function reportDateKey(iso){
  return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Manila",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(iso));
 }
@@ -457,7 +568,25 @@ function bind(){
  $("#orderDiscount").oninput=renderOrderItems;$("#deliveryFee").oninput=renderOrderItems;$("#clearOrderBtn").onclick=clearOrder;$("#saveOrderBtn").onclick=saveOrder;$("#ordersSearch").oninput=renderOrders;$("#ordersStatusFilter").onchange=renderOrders;
  $("#closeOrderBtn").onclick=()=>$("#orderDialog").close();$("#printClaimBtn").onclick=printReceipt;$("#paymentBtn").onclick=openPayment;$("#paymentMethod").onchange=e=>$("#paymentReferenceWrap").classList.toggle("hidden",e.target.value==="Cash");$("#savePaymentBtn").onclick=savePayment;
  $("#addExpenseBtn").onclick=()=>{$("#expenseDate").value=day(new Date());$("#expenseDescription").value="";$("#expenseAmount").value="";$("#expenseDialog").showModal()};$("#saveExpenseBtn").onclick=saveExpense;$("#expensesSearch").oninput=renderExpenses;
- if($("#closeRealtimePopupBtn"))$("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup")?.classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#saveReceiptSettingsBtn").onclick=saveReceiptSettings;$("#savePrinterSettingsBtn").onclick=savePrinterSettings;$("#testPrintBtn").onclick=testPrint;$("#companyLogoInput").onchange=e=>handleLogo(e.target.files[0]);$("#removeLogoBtn").onclick=()=>{db.settings.logoData="";save();renderSettings();toast("Logo removed")};$("#endShiftDate").value=reportDateKey(new Date());$("#endShiftDate").onchange=renderReports;$("#printEndShiftBtn").onclick=printEndShift;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
+ if($("#closeRealtimePopupBtn"))$("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup")?.classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#saveReceiptSettingsBtn").onclick=saveReceiptSettings;$("#savePrinterSettingsBtn").onclick=savePrinterSettings;$("#testPrintBtn").onclick=testPrint;$("#companyLogoInput").onchange=e=>handleLogo(e.target.files[0]);$("#removeLogoBtn").onclick=()=>{db.settings.logoData="";save();renderSettings();toast("Logo removed")};$("#endShiftDate").value=reportDateKey(new Date());$("#endShiftDate").onchange=()=>{renderReports();loadCashCounter()};$("#printEndShiftBtn").onclick=printEndShift;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
 }
-bind();setupCookieConsent();setupNetworkMonitoring();updateRealtimeIndicator();updatePhilippineClock();setInterval(updatePhilippineClock,1000);clearOrder();setTimeout(()=>syncOnlineBookings(true),1500);setInterval(()=>{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)},5000);setInterval(()=>$("#clock").textContent=new Date().toLocaleString(),1000);if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+function startStablePOS(){
+ try{if(window.__ATE_ANNAS_UPDATE_CLOCK__)window.__ATE_ANNAS_UPDATE_CLOCK__();else updatePhilippineClock()}catch(e){console.error("Clock module error:",e)}
+ try{bind()}catch(e){console.error("POS bind error:",e);toast("Some controls failed to initialize. Refresh the page.")}
+ try{setupCashCounter()}catch(e){console.error("Cash counter error:",e)}
+ try{setupCookieConsent()}catch(e){console.error("Cookie setup error:",e)}
+ try{setupNetworkMonitoring()}catch(e){console.error("Network setup error:",e)}
+ try{updateRealtimeIndicator()}catch(e){console.error("Realtime indicator error:",e)}
+ try{clearOrder()}catch(e){console.error("Order setup error:",e)}
+ setTimeout(()=>{try{syncOnlineBookings(true)}catch(e){console.error("Booking sync error:",e)}},1500);
+ setInterval(()=>{try{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)}catch(e){console.error("Realtime loop error:",e)}},5000);
+ setInterval(()=>{const c=$("#clock");if(c)c.textContent=new Intl.DateTimeFormat("en-PH",{timeZone:"Asia/Manila",dateStyle:"medium",timeStyle:"medium"}).format(new Date())},1000);
+ if("serviceWorker"in navigator){
+   navigator.serviceWorker.register("/sw.js?v=5.0.0-stable",{updateViaCache:"none"})
+     .then(reg=>reg.update())
+     .catch(e=>console.error("Service worker error:",e));
+ }
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",startStablePOS,{once:true});
+else startStablePOS();
 })();

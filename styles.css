@@ -283,3 +283,28 @@ body{padding-bottom:58px!important}
 @media print{
   .fixed-copyright-bar{display:none!important}
 }
+
+.cash-counter-panel{margin-top:18px}
+.cash-counter-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.cash-counter-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cash-counter-grid section{border:1px solid var(--line);border-radius:16px;padding:14px;background:#f8fafc}
+.cash-counter-grid h4{margin:0 0 12px;color:#0f172a}
+.denomination-grid{display:grid;gap:10px}
+.denomination-grid label{display:grid;grid-template-columns:95px 90px 1fr;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}
+.denomination-grid label span{font-weight:900;color:#334155}
+.denomination-grid input{width:100%;text-align:center;font-weight:900}
+.denomination-grid b{text-align:right;color:#1d4ed8;font-variant-numeric:tabular-nums}
+.cash-counter-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.cash-counter-summary article{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.cash-counter-summary article span{font-size:12px;color:var(--muted);font-weight:800}
+.cash-counter-summary article b{font-size:20px;font-variant-numeric:tabular-nums}
+.cash-counter-summary article input{font-size:18px;font-weight:900}
+#varianceCard.variance-ok{border-color:#86efac;background:#f0fdf4}
+#varianceCard.variance-over{border-color:#93c5fd;background:#eff6ff}
+#varianceCard.variance-short{border-color:#fca5a5;background:#fef2f2}
+#varianceCard.variance-ok b{color:#15803d}
+#varianceCard.variance-over b{color:#1d4ed8}
+#varianceCard.variance-short b{color:#b91c1c}
+.cash-counter-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+@media(max-width:900px){.cash-counter-grid{grid-template-columns:1fr}.cash-counter-summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cash-counter-header{align-items:stretch;flex-direction:column}.denomination-grid label{grid-template-columns:80px 75px 1fr}.cash-counter-summary{grid-template-columns:1fr}.cash-counter-actions{display:grid;grid-template-columns:1fr 1fr}}

@@ -49,7 +49,7 @@
         <button data-page="services">🧼 Services</button>
         <button data-page="payments">💳 Payments</button>
         <button data-page="expenses">🧾 Expenses</button>
-        <button data-page="reports">📈 Reports</button>
+        <button data-page="reports">💵 End Shift & Cash Counter</button>
         <button data-page="settings">⚙️ Settings</button>
       </nav>
       <div class="sidebar-bottom">
@@ -61,7 +61,7 @@
     <main class="main">
       <header class="topbar">
         <button id="menuBtn" class="menu-btn">☰</button>
-        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V4.4.1 COPYRIGHT VISIBLE FIX</small></div><span id="clock"></span></div>
+        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V5.0 STABLE COMPLETE</small></div><span id="clock"></span></div>
         <div class="live-clock-card" aria-live="polite">
           <div id="liveDatePH" class="live-date-ph">Loading date…</div>
           <div id="liveTimePH" class="live-time-ph">--:--:-- --</div>
@@ -328,6 +328,58 @@
             <tbody id="endShiftTable"></tbody>
           </table>
         </div>
+
+        <div class="panel cash-counter-panel">
+          <div class="cash-counter-header">
+            <div>
+              <h3>Cash Drawer Bill & Coin Counter</h3>
+              <p class="settings-note">Ilagay ang dami ng bawat denomination. Automatic ang total at cash variance.</p>
+            </div>
+            <button id="resetCashCounterBtn" type="button">Reset Counter</button>
+          </div>
+
+          <div class="cash-counter-grid">
+            <section>
+              <h4>Philippine Bills</h4>
+              <div class="denomination-grid">
+                <label><span>₱1,000</span><input class="denom-input" data-value="1000" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱500</span><input class="denom-input" data-value="500" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱200</span><input class="denom-input" data-value="200" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱100</span><input class="denom-input" data-value="100" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱50</span><input class="denom-input" data-value="50" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱20</span><input class="denom-input" data-value="20" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+              </div>
+            </section>
+
+            <section>
+              <h4>Philippine Coins</h4>
+              <div class="denomination-grid">
+                <label><span>₱20 Coin</span><input class="denom-input" data-value="20" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱10</span><input class="denom-input" data-value="10" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱5</span><input class="denom-input" data-value="5" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱1</span><input class="denom-input" data-value="1" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>₱0.25</span><input class="denom-input" data-value="0.25" type="number" min="0" step="1" value="0"><b class="denom-total">₱0.00</b></label>
+                <label><span>Other Cash</span><input id="otherCashAmount" type="number" min="0" step="0.01" value="0"><b id="otherCashTotal">₱0.00</b></label>
+              </div>
+            </section>
+          </div>
+
+          <div class="cash-counter-summary">
+            <article><span>Expected Cash Sales</span><b id="expectedDrawerCash">₱0.00</b></article>
+            <article><span>Opening Cash</span><input id="openingCashInput" type="number" min="0" step="0.01" value="0"></article>
+            <article><span>Cash Expenses / Payout</span><input id="cashPayoutInput" type="number" min="0" step="0.01" value="0"></article>
+            <article><span>Expected Drawer</span><b id="expectedDrawerTotal">₱0.00</b></article>
+            <article><span>Actual Counted Cash</span><b id="actualCountedCash">₱0.00</b></article>
+            <article id="varianceCard"><span>Cash Variance</span><b id="cashVariance">₱0.00</b></article>
+          </div>
+
+          <div class="cash-counter-actions">
+            <button id="saveCashCountBtn" class="primary" type="button">Save Cash Count</button>
+            <button id="printCashCountBtn" type="button">Print Cash Count</button>
+          </div>
+          <p id="cashCountSavedInfo" class="settings-note"></p>
+        </div>
+
         <div class="report-grid">
           <div class="panel"><h3>Order Status</h3><div id="statusBreakdown"></div></div>
           <div class="panel"><h3>Top Services</h3><div id="topServices"></div></div>
@@ -445,7 +497,6 @@
     </form>
   </dialog>
 
-  <script src="/app.js"></script>
 
   <footer class="site-legal-footer">
     <div>© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.</div>
@@ -478,6 +529,68 @@
       <a href="/privacy-cookies.html" target="_blank" rel="noopener">PRIVACY & COOKIES</a>
     </span>
   </div>
+<script>
+  (function () {
+    "use strict";
+    const TZ = "Asia/Manila";
+
+    function updateStableClock() {
+      const now = new Date();
+      const dateEl = document.getElementById("liveDatePH");
+      const timeEl = document.getElementById("liveTimePH");
+      const inboxEl = document.getElementById("inboxRealtimeClock");
+
+      try {
+        const dateText = new Intl.DateTimeFormat("en-PH", {
+          timeZone: TZ,
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }).format(now);
+
+        const timeText = new Intl.DateTimeFormat("en-PH", {
+          timeZone: TZ,
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true
+        }).format(now);
+
+        const compact = new Intl.DateTimeFormat("en-PH", {
+          timeZone: TZ,
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true
+        }).format(now);
+
+        if (dateEl) dateEl.textContent = dateText;
+        if (timeEl) timeEl.textContent = timeText;
+        if (inboxEl) inboxEl.textContent = compact + " PH";
+      } catch (error) {
+        if (dateEl) dateEl.textContent = now.toLocaleDateString("en-PH");
+        if (timeEl) timeEl.textContent = now.toLocaleTimeString("en-PH");
+      }
+    }
+
+    window.__ATE_ANNAS_UPDATE_CLOCK__ = updateStableClock;
+    updateStableClock();
+    window.setInterval(updateStableClock, 1000);
+    document.addEventListener("DOMContentLoaded", updateStableClock);
+
+    // Remove obsolete cached workers before loading the stable release.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations()
+        .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+        .catch(() => {});
+    }
+  })();
+  </script>
+  <script defer src="/app.js?v=5.0.0-stable"></script>
 
 </body>
 </html>
