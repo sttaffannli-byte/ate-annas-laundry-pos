@@ -1,7 +1,13 @@
-"d1_databases": [
-  {
-    "binding": "DB",
-    "database_name": "ate-annas-laundry-db",
-    "database_id": "90e041e5-9ddc-4074-b32c-986dae592cd7"
-  }
-]
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ate-annas-laundry-pos-v3",
+  "pages_build_output_dir": ".",
+  "compatibility_date": "2026-07-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ate-annas-laundry-db",
+      "database_id": "90e041e5-9ddc-4074-b32c-986dae592cd7"
+    }
+  ]
+}
