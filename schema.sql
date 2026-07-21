@@ -1,13 +1,9 @@
 {
-  "name": "ate-annas-laundry-pos-v3",
-  "private": true,
-  "scripts": {
-    "dev": "wrangler pages dev .",
-    "deploy": "wrangler pages deploy . --project-name=ate-annas-laundry-pos-v3",
-    "db:create": "wrangler d1 create ate-annas-laundry-db",
-    "db:schema": "wrangler d1 execute ate-annas-laundry-db --remote --file=./schema.sql"
-  },
-  "devDependencies": {
-    "wrangler": "^4.0.0"
-  }
+  "name": "ATE ANNAS LAUNDRY POS V2",
+  "short_name": "AA Laundry POS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
+  "description": "Touchscreen laundry booking and payment system"
 }
