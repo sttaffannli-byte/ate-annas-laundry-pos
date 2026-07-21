@@ -11,6 +11,16 @@
 <body>
   <div id="toast" class="toast"></div>
 
+  <div id="realtimeBookingPopup" class="realtime-popup hidden" role="alert">
+    <div class="realtime-popup-icon">🔔</div>
+    <div>
+      <b>NEW ONLINE BOOKING RECEIVED</b>
+      <span id="realtimeBookingText">A new customer booking was received.</span>
+    </div>
+    <button id="closeRealtimePopupBtn" type="button">×</button>
+  </div>
+
+
   <section id="loginView" class="login-view">
     <div class="login-card">
       <div class="brand-mark">AA</div>
@@ -51,7 +61,7 @@
     <main class="main">
       <header class="topbar">
         <button id="menuBtn" class="menu-btn">☰</button>
-        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V4.2 REALTIME ONLINE BOOKING</small></div><span id="clock"></span></div>
+        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V4.2.1 REALTIME FIX</small></div><span id="clock"></span></div>
         <div id="networkStatus" class="network-status online" role="status" aria-live="polite">
           <span class="network-dot"></span>
           <div>

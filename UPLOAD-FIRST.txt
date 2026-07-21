@@ -1,23 +1,16 @@
-ATE ANNAS LAUNDRY POS V4.2 — REALTIME ONLINE BOOKING
+ATE ANNAS LAUNDRY POS V4.2.1 REALTIME FIX
+
+This fixes the startup error that caused:
+- Waiting for sync
+- No automatic Received booking
+- Realtime indicator showing ON but no polling
 
 UPLOAD:
-1. EXTRACT this ZIP.
-2. Upload ALL files and folders inside to the ROOT of:
-   staffannli-byte/ate-annas-laundry-pos
+1. Extract ZIP.
+2. Upload ALL contents to GitHub repository root.
 3. Replace existing files.
-4. Commit directly to main.
-5. Wait for a NEW Cloudflare deployment.
-6. Open the POS and press CTRL + F5.
-
-REALTIME FEATURES:
-- Checks D1 every 5 seconds while online
-- Automatically imports new booking as Received
-- Popup notification for new booking
-- Notification sound
-- Realtime ON / PAUSED status
-- No need to press Sync Now during normal operation
-
-KEEP:
-- D1 binding: DB
-- Secret: ADMIN_API_KEY
-- Same Admin Sync Key inside the POS
+4. Commit to main.
+5. Wait for Cloudflare deployment.
+6. Press CTRL + F5.
+7. Confirm header shows V4.2.1 REALTIME FIX.
+8. Create a NEW customer booking and wait 5–10 seconds.
