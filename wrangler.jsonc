@@ -1,62 +1,13 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Terms & Conditions | ATE ANNAS LAUNDRY</title>
-<style>
-body{font-family:Arial,sans-serif;margin:0;background:#f8fafc;color:#0f172a;line-height:1.65}
-main{width:min(900px,calc(100% - 30px));margin:30px auto;background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px;box-shadow:0 14px 40px #0f172a0d}
-h1,h2{color:#1d4ed8}a{color:#2563eb}.notice{padding:12px 14px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:10px}
-footer{text-align:center;color:#64748b;font-size:12px;margin-top:30px}
-</style>
-</head>
-<body>
-<main>
-<h1>Terms & Conditions</h1>
-<p><strong>Effective date:</strong> July 21, 2026</p>
-<p class="notice">These terms are a general business template and may need review by a qualified legal professional for your specific operations and local requirements.</p>
-
-<h2>1. Acceptance of Terms</h2>
-<p>By using the ATE ANNAS LAUNDRY website, online booking page or point-of-sale services, you agree to these Terms & Conditions.</p>
-
-<h2>2. Laundry Services</h2>
-<p>Services, prices, minimum weights, turnaround times, pickup schedules and delivery availability may change. Final charges are based on actual weighing, item count, service type and inspection.</p>
-
-<h2>3. Customer Responsibilities</h2>
-<p>Customers must provide accurate contact, address, schedule and garment information. Customers should remove valuables, cash, documents and fragile items from laundry before collection.</p>
-
-<h2>4. Delicate, Damaged or Special-Care Items</h2>
-<p>Customers must identify delicate, damaged, stained, color-sensitive or special-care items. ATE ANNAS LAUNDRY may decline items that are unsafe, contaminated or unsuitable for normal processing.</p>
-
-<h2>5. Pickup and Delivery</h2>
-<p>Pickup and delivery times are estimates and may be affected by traffic, weather, service volume or customer availability. Additional fees may apply based on location, distance or failed delivery attempts.</p>
-
-<h2>6. Payments</h2>
-<p>Accepted methods may include Cash, GCash, Maya and Bank Transfer. Digital payments may require a valid reference number. Orders may be held until full payment is confirmed.</p>
-
-<h2>7. Claims and Order Release</h2>
-<p>Customers should present the order code, claim stub or verified contact details before release. Any concern should be reported promptly after receiving the laundry.</p>
-
-<h2>8. Unclaimed Orders</h2>
-<p>Unclaimed orders may be subject to storage charges or other handling rules after reasonable notice, consistent with applicable law and posted store policy.</p>
-
-<h2>9. Limitation of Liability</h2>
-<p>ATE ANNAS LAUNDRY will exercise reasonable care. Liability, when legally applicable, may be limited to the fair value of the affected item or the service amount, subject to applicable law.</p>
-
-<h2>10. Online Booking</h2>
-<p>An online booking is a service request and is not final until confirmed. ATE ANNAS LAUNDRY may contact the customer to verify availability, address, schedule and service details.</p>
-
-<h2>11. System Availability</h2>
-<p>The website and POS may occasionally be unavailable due to internet interruption, maintenance or third-party service issues. Offline POS data may be stored locally on the device.</p>
-
-<h2>12. Changes</h2>
-<p>These terms may be updated. Continued use after changes means acceptance of the revised terms.</p>
-
-<h2>13. Contact</h2>
-<p>For questions, contact ATE ANNAS LAUNDRY through the contact details displayed on the website or receipt.</p>
-
-<footer>© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.<br>Developed by JIMBOYLAUDE.LLC.INFO</footer>
-</main>
-</body>
-</html>
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ate-annas-laundry-pos-v2",
+  "pages_build_output_dir": ".",
+  "compatibility_date": "2026-07-21",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ate-annas-laundry-db",
+      "database_id": "90e041e5-9ddc-4074-b32c-986dae592cd7"
+    }
+  ]
+}
