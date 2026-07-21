@@ -1,25 +1,37 @@
-ATE ANNAS LAUNDRY POS V5.1.1 — BLUETOOTH VISIBLE FIX
+CREATE TABLE IF NOT EXISTS online_bookings (
+  id TEXT PRIMARY KEY,
+  booking_code TEXT NOT NULL UNIQUE,
+  customer_name TEXT NOT NULL,
+  mobile TEXT NOT NULL,
+  address TEXT NOT NULL,
+  request_type TEXT NOT NULL,
+  preferred_date TEXT NOT NULL,
+  preferred_time TEXT NOT NULL,
+  service_name TEXT NOT NULL,
+  quantity REAL NOT NULL DEFAULT 1,
+  estimated_amount REAL NOT NULL DEFAULT 0,
+  promo_code TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Received' CHECK(status IN ('Received','Imported','Cancelled')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_online_bookings_status_created
+ON online_bookings(status, created_at DESC);
 
-ROOT CAUSE:
-The Printer Settings were inside the Settings page, and Settings was hidden for Cashier accounts.
 
-FIXED:
-- Printer & Settings menu is now visible to Admin and Cashier.
-- Bluetooth and USB printer buttons are visible to both roles.
-- Company Information and Security remain Admin-only.
-- Menu label changed to:
-  🖨️ Printer & Settings
-
-AFTER DEPLOYMENT:
-1. Login to POS.
-2. Click 🖨️ Printer & Settings in the left menu.
-3. Scroll to 80mm Thermal Printer Settings.
-4. Select System Printer, Direct Bluetooth BLE, or Direct USB.
-5. Press Connect Bluetooth or Connect USB.
-
-UPLOAD:
-Extract ZIP, upload ALL files to GitHub root, replace existing files,
-commit to main, wait for Cloudflare Success, then press CTRL + SHIFT + R.
-
-Confirm header:
-V5.1.1 BLUETOOTH VISIBLE FIX
+CREATE TABLE IF NOT EXISTS online_services (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  type TEXT NOT NULL DEFAULT 'flat',
+  rate REAL NOT NULL DEFAULT 0,
+  minimum REAL NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  show_online INTEGER NOT NULL DEFAULT 1,
+  image_data TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_online_services_visible
+ON online_services(active, show_online, sort_order);

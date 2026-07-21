@@ -1,7 +1,41 @@
-{
-  "version": 1,
-  "include": [
-    "/api/*"
-  ],
-  "exclude": []
+const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json;charset=UTF-8","cache-control":"no-store"}});
+const clean=(v,max=500)=>String(v??"").trim().slice(0,max);
+const authorized=context=>{
+ const configured=context.env.ADMIN_API_KEY;
+ return configured&&context.request.headers.get("x-admin-key")===configured;
+};
+
+export async function onRequestGet(context){
+ try{
+   const result=await context.env.DB.prepare(`SELECT id,name,description,type,rate,minimum,active,show_online,image_data,updated_at
+     FROM online_services WHERE active=1 AND show_online=1 ORDER BY sort_order,name`).all();
+   return json({services:result.results||[]});
+ }catch(error){return json({services:[],error:"Catalog not initialized"},200)}
+}
+
+export async function onRequestPut(context){
+ if(!authorized(context))return json({error:"Unauthorized admin sync key"},401);
+ try{
+   const body=await context.request.json();
+   const services=Array.isArray(body.services)?body.services:[];
+   if(services.length>100)return json({error:"Too many services"},400);
+   const now=new Date().toISOString();
+   const statements=[
+     context.env.DB.prepare("DELETE FROM online_services")
+   ];
+   services.forEach((s,index)=>{
+     const image=String(s.image_data||"");
+     if(image.length>900000)throw new Error(`Photo for ${clean(s.name,80)} is too large`);
+     statements.push(context.env.DB.prepare(`INSERT INTO online_services
+       (id,name,description,type,rate,minimum,active,show_online,image_data,sort_order,updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?)`).bind(
+         clean(s.id,80)||crypto.randomUUID(),clean(s.name,120),clean(s.description,500),
+         ["kg","piece","flat"].includes(s.type)?s.type:"flat",
+         Math.max(0,Number(s.rate||0)),Math.max(0,Number(s.minimum||0)),
+         s.active?1:0,s.show_online?1:0,image,index,now
+       ));
+   });
+   await context.env.DB.batch(statements);
+   return json({ok:true,count:services.length,updated_at:now});
+ }catch(error){return json({error:"Unable to publish catalog",detail:String(error.message||error)},500)}
 }

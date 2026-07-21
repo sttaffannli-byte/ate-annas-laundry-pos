@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <title>Book Laundry Pickup & Delivery</title>
-  <link rel="stylesheet" href="/booking.css">
+  <link rel="stylesheet" href="/booking.css?v=5.3.0">
 </head>
 <body>
   <main class="booking-shell">
@@ -125,7 +125,7 @@
     </div>
 
   </main>
-  <script src="/booking.js"></script>
+  <script src="/booking.js?v=5.3.0"></script>
 
     <div class="fixed-copyright-bar">
       <span>© 2026 ATE ANNAS LAUNDRY. ALL RIGHTS RESERVED.</span>
