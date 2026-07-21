@@ -180,6 +180,49 @@ function importOnlineBooking(b){
   save();
   return true;
 }
+
+let realtimeLastBookingId=localStorage.getItem("ate-annas-last-online-booking")||"";
+let realtimePopupTimer=null;
+
+function playRealtimeBookingSound(){
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx)return;
+    const ctx=new AudioCtx();
+    const now=ctx.currentTime;
+    [660,880,1040].forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type="sine";
+      osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0.0001,now+i*.14);
+      gain.gain.exponentialRampToValueAtTime(.18,now+i*.14+.02);
+      gain.gain.exponentialRampToValueAtTime(.0001,now+i*.14+.12);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now+i*.14);
+      osc.stop(now+i*.14+.14);
+    });
+    setTimeout(()=>ctx.close(),800);
+  }catch{}
+}
+function showRealtimeBookingPopup(booking){
+  const popup=$("#realtimeBookingPopup");
+  if(!popup)return;
+  $("#realtimeBookingText").textContent=`${booking.customer_name} · ${booking.request_type} · ${booking.preferred_date} ${booking.preferred_time}`;
+  popup.classList.remove("hidden");
+  playRealtimeBookingSound();
+  clearTimeout(realtimePopupTimer);
+  realtimePopupTimer=setTimeout(()=>popup.classList.add("hidden"),10000);
+}
+function updateRealtimeIndicator(){
+  const el=$("#realtimeStatus");
+  if(!el)return;
+  const active=navigator.onLine&&!!activeUser;
+  el.classList.toggle("active",active);
+  el.classList.toggle("paused",!active);
+  el.innerHTML=active?'<i></i> REALTIME ON':'<i></i> REALTIME PAUSED';
+}
+
 async function bookingApi(path="",options={}){
   const key=db.settings.bookingAdminKey||"";
   const headers={"Content-Type":"application/json",...(options.headers||{})};
@@ -196,6 +239,14 @@ async function syncOnlineBookings(silent=false){
     text.textContent="Syncing online bookings…";
     const data=await bookingApi("?limit=100");
     const rows=data.bookings||[];
+    const newest=rows[0];
+    if(newest&&realtimeLastBookingId&&newest.id!==realtimeLastBookingId){
+      showRealtimeBookingPopup(newest);
+    }
+    if(newest){
+      realtimeLastBookingId=newest.id;
+      localStorage.setItem("ate-annas-last-online-booking",newest.id);
+    }
     let imported=0;
     for(const b of rows.filter(x=>x.status==="Received")){
       if(importOnlineBooking(b)){
@@ -221,7 +272,7 @@ async function syncOnlineBookings(silent=false){
       try{await bookingApi("/"+encodeURIComponent(btn.dataset.onlineCancel),{method:"PATCH",body:JSON.stringify({status:"Cancelled"})});await syncOnlineBookings()}
       catch(e){toast(e.message)}
     });
-    text.textContent=`Last synced ${new Date().toLocaleTimeString()}${imported?` · ${imported} automatically received`:""}`;
+    text.textContent=`Realtime sync ${new Date().toLocaleTimeString()}${imported?` · ${imported} automatically received`:""}`;
     if(imported){renderAll();toast(`${imported} online booking received automatically`)}
     else if(!silent)toast("Online bookings synchronized");
   }catch(e){
@@ -304,8 +355,8 @@ function updateNetworkStatus(){
   if(!online) toast("Offline mode: POS will continue working");
 }
 function setupNetworkMonitoring(){
-  window.addEventListener("online",()=>{updateNetworkStatus();toast("Back online")});
-  window.addEventListener("offline",updateNetworkStatus);
+  window.addEventListener("online",()=>{updateNetworkStatus();updateRealtimeIndicator();toast("Back online")});
+  window.addEventListener("offline",()=>{updateNetworkStatus();updateRealtimeIndicator()});
   updateNetworkStatus();
 
   window.addEventListener("beforeinstallprompt",e=>{
@@ -339,7 +390,7 @@ function bind(){
  $("#orderDiscount").oninput=renderOrderItems;$("#deliveryFee").oninput=renderOrderItems;$("#clearOrderBtn").onclick=clearOrder;$("#saveOrderBtn").onclick=saveOrder;$("#ordersSearch").oninput=renderOrders;$("#ordersStatusFilter").onchange=renderOrders;
  $("#closeOrderBtn").onclick=()=>$("#orderDialog").close();$("#printClaimBtn").onclick=()=>window.print();$("#paymentBtn").onclick=openPayment;$("#paymentMethod").onchange=e=>$("#paymentReferenceWrap").classList.toggle("hidden",e.target.value==="Cash");$("#savePaymentBtn").onclick=savePayment;
  $("#addExpenseBtn").onclick=()=>{$("#expenseDate").value=day(new Date());$("#expenseDescription").value="";$("#expenseAmount").value="";$("#expenseDialog").showModal()};$("#saveExpenseBtn").onclick=saveExpense;$("#expensesSearch").oninput=renderExpenses;
- $("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
+ $("#closeRealtimePopupBtn").onclick=()=>$("#realtimeBookingPopup").classList.add("hidden");$("#saveBookingSettingsBtn").onclick=saveBookingSettings;$("#syncBookingsBtn").onclick=()=>syncOnlineBookings();$("#saveSettingsBtn").onclick=saveSettings;$("#savePinsBtn").onclick=savePins;$("#backupBtn").onclick=backup;$("#restoreInput").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("#resetDemoBtn").onclick=()=>{if(confirm("Reset all laundry data?")){db=structuredClone(defaults);save();clearOrder();renderAll();toast("Demo data restored")}}
 }
-bind();setupNetworkMonitoring();clearOrder();setTimeout(()=>syncOnlineBookings(true),1500);setInterval(()=>{if(activeUser&&navigator.onLine)syncOnlineBookings(true)},30000);setInterval(()=>$("#clock").textContent=new Date().toLocaleString(),1000);if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+bind();setupNetworkMonitoring();updateRealtimeIndicator();clearOrder();setTimeout(()=>syncOnlineBookings(true),1500);setInterval(()=>{updateRealtimeIndicator();if(activeUser&&navigator.onLine)syncOnlineBookings(true)},5000);setInterval(()=>$("#clock").textContent=new Date().toLocaleString(),1000);if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
 })();

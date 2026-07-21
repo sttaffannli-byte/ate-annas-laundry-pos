@@ -1,13 +1,9 @@
-# ATE ANNAS LAUNDRY POS V4.1
+# ATE ANNAS LAUNDRY POS V4.2 REALTIME
 
-Clean GitHub package without rider assignment.
-
-Features:
-- Automatic customer online booking
-- D1 booking inbox
-- Automatic Received order import
-- Pickup and delivery
-- Tablet-ready touch layout
-- Online/offline indicator
-- Offline local POS operation
-- Dashboard and order tracker
+Production opening build:
+- Realtime online booking check every 5 seconds
+- Automatic Received import
+- Sound and popup notification
+- D1 cloud booking inbox
+- Tablet and offline-ready POS
+- No rider assignment

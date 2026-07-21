@@ -1,24 +1,23 @@
-ATE ANNAS LAUNDRY POS V4.1 — NO RIDER
+ATE ANNAS LAUNDRY POS V4.2 — REALTIME ONLINE BOOKING
 
+UPLOAD:
 1. EXTRACT this ZIP.
-2. Upload ALL files and folders inside the extracted folder to:
+2. Upload ALL files and folders inside to the ROOT of:
    staffannli-byte/ate-annas-laundry-pos
 3. Replace existing files.
 4. Commit directly to main.
-5. Wait for a new Cloudflare deployment marked just now.
-6. Open the live POS and press CTRL + F5.
-7. Confirm the header shows V4.1 AUTOMATIC ONLINE BOOKING.
+5. Wait for a NEW Cloudflare deployment.
+6. Open the POS and press CTRL + F5.
 
-Included:
-- Automatic Online Booking Inbox
-- Customer booking saved to D1
-- Automatic Received order import
-- Pickup and delivery details
-- Tablet-ready design
-- Online/offline indicator
-- No rider feature
+REALTIME FEATURES:
+- Checks D1 every 5 seconds while online
+- Automatically imports new booking as Received
+- Popup notification for new booking
+- Notification sound
+- Realtime ON / PAUSED status
+- No need to press Sync Now during normal operation
 
-Keep these Cloudflare settings:
-- D1 binding name: DB
-- Database: ate-annas-laundry-db
+KEEP:
+- D1 binding: DB
 - Secret: ADMIN_API_KEY
+- Same Admin Sync Key inside the POS
