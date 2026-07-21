@@ -1,13 +1,256 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#07111f" />
-    <title>LaundryPOS Pro</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>ATE ANNAS LAUNDRY POS V2</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <section id="loginView" class="login-view">
+    <div class="login-card">
+      <div class="brand-mark">AA</div>
+      <h1>ATE ANNAS LAUNDRY POS V2</h1>
+      <p>Touchscreen Laundry Booking & Payment System</p>
+      <label>Username<input id="loginUser" value="admin" autocomplete="username"></label>
+      <label>PIN<input id="loginPin" type="password" inputmode="numeric" maxlength="6" value="1234"></label>
+      <button id="loginBtn" class="primary big">LOG IN</button>
+      <small>Admin: <b>admin / 1234</b> · Cashier: <b>cashier / 0000</b></small>
+    </div>
+  </section>
+
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark small">AA</div>
+        <div><strong>ATE ANNAS</strong><span>LAUNDRY POS V2</span></div>
+      </div>
+      <nav>
+        <button data-page="new" class="active">🧺 New Order</button>
+        <button data-page="orders">📋 Orders</button>
+        <button data-page="customers">👥 Customers</button>
+        <button data-page="services">🧼 Services</button>
+        <button data-page="payments">💳 Payments</button>
+        <button data-page="expenses">🧾 Expenses</button>
+        <button data-page="reports">📈 Reports</button>
+        <button data-page="settings">⚙️ Settings</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div id="currentUser"></div>
+        <button id="logoutBtn">Log out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button id="menuBtn" class="menu-btn">☰</button>
+        <div><h2 id="pageTitle">New Order</h2><span id="clock"></span></div>
+        <div class="status"><span class="dot"></span> Offline-ready</div>
+      </header>
+
+      <section id="page-new" class="page active">
+        <div class="order-layout">
+          <div class="panel">
+            <h3>Customer & Schedule</h3>
+            <div class="form-grid">
+              <label>Customer
+                <div class="inline">
+                  <select id="orderCustomer"></select>
+                  <button id="quickCustomerBtn">+ New</button>
+                </div>
+              </label>
+              <label>Contact<input id="orderContact" readonly></label>
+              <label>Received date<input id="receivedDate" type="datetime-local"></label>
+              <label>Due date<input id="dueDate" type="datetime-local"></label>
+              <label>Pickup / Delivery
+                <select id="deliveryType"><option>Walk-in</option><option>Pickup</option><option>Delivery</option><option>Pickup & Delivery</option></select>
+              </label>
+              <label>Address<input id="deliveryAddress" placeholder="Required for pickup/delivery"></label>
+              <label>Special instructions<textarea id="orderNotes" placeholder="Stains, colors, delicate items..."></textarea></label>
+              <label>Order status
+                <select id="orderStatus"><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select>
+              </label>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-head"><h3>Services</h3><button id="clearOrderBtn" class="danger ghost">Clear</button></div>
+            <div id="serviceButtons" class="service-grid"></div>
+            <div id="orderItems" class="order-items"></div>
+            <div class="totals">
+              <div><span>Subtotal</span><b id="orderSubtotal">₱0.00</b></div>
+              <div><span>Discount</span><input id="orderDiscount" type="number" min="0" step="0.01" value="0"></div>
+              <div><span>Delivery fee</span><input id="deliveryFee" type="number" min="0" step="0.01" value="0"></div>
+              <div class="grand"><span>TOTAL</span><b id="orderTotal">₱0.00</b></div>
+            </div>
+            <button id="saveOrderBtn" class="primary big full">SAVE ORDER</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-orders" class="page">
+        <div class="cards">
+          <article><span>Received</span><b id="countReceived">0</b></article>
+          <article><span>In Process</span><b id="countProcess">0</b></article>
+          <article><span>Ready</span><b id="countReady">0</b></article>
+          <article><span>Overdue</span><b id="countOverdue">0</b></article>
+        </div>
+        <div class="page-actions">
+          <input id="ordersSearch" placeholder="Search order, customer, contact">
+          <select id="ordersStatusFilter"><option value="">All statuses</option><option>Received</option><option>Washing</option><option>Drying</option><option>Folding</option><option>Ready</option><option>Released</option></select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Order</th><th>Customer</th><th>Received</th><th>Due</th><th>Status</th><th>Total</th><th>Balance</th><th>Action</th></tr></thead>
+          <tbody id="ordersTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-customers" class="page">
+        <div class="page-actions"><input id="customersSearch" placeholder="Search customer"><button id="addCustomerBtn" class="primary">+ Add Customer</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Contact</th><th>Address</th><th>Orders</th><th>Total Spent</th><th>Action</th></tr></thead>
+          <tbody id="customersTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-services" class="page">
+        <div class="page-actions"><input id="servicesSearch" placeholder="Search services"><button id="addServiceBtn" class="primary">+ Add Service</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Service</th><th>Pricing</th><th>Rate</th><th>Minimum</th><th>Active</th><th>Action</th></tr></thead>
+          <tbody id="servicesTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-payments" class="page">
+        <div class="cards">
+          <article><span>Collected Today</span><b id="paymentsToday">₱0.00</b></article>
+          <article><span>Outstanding Balance</span><b id="paymentsBalance">₱0.00</b></article>
+          <article><span>Cash</span><b id="paymentsCash">₱0.00</b></article>
+          <article><span>GCash / Bank</span><b id="paymentsDigital">₱0.00</b></article>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead>
+          <tbody id="paymentsTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-expenses" class="page">
+        <div class="page-actions"><input id="expensesSearch" placeholder="Search expenses"><button id="addExpenseBtn" class="primary">+ Add Expense</button></div>
+        <div class="cards">
+          <article><span>Expenses Today</span><b id="expensesToday">₱0.00</b></article>
+          <article><span>Expenses This Month</span><b id="expensesMonth">₱0.00</b></article>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead>
+          <tbody id="expensesTable"></tbody>
+        </table></div>
+      </section>
+
+      <section id="page-reports" class="page">
+        <div class="cards">
+          <article><span>Sales Today</span><b id="reportSalesToday">₱0.00</b></article>
+          <article><span>Orders Today</span><b id="reportOrdersToday">0</b></article>
+          <article><span>Net Today</span><b id="reportNetToday">₱0.00</b></article>
+          <article><span>Average Order</span><b id="reportAverage">₱0.00</b></article>
+        </div>
+        <div class="report-grid">
+          <div class="panel"><h3>Order Status</h3><div id="statusBreakdown"></div></div>
+          <div class="panel"><h3>Top Services</h3><div id="topServices"></div></div>
+        </div>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="settings-grid">
+          <div class="panel">
+            <h3>Store Information</h3>
+            <label>Store name<input id="storeName"></label>
+            <label>Address<textarea id="storeAddress"></textarea></label>
+            <label>Contact<input id="storeContact"></label>
+            <label>Receipt footer<textarea id="receiptFooter"></textarea></label>
+            <button id="saveSettingsBtn" class="primary">Save Settings</button>
+          </div>
+          <div class="panel">
+            <h3>Security</h3>
+            <label>Admin PIN<input id="adminPin" type="password" inputmode="numeric"></label>
+            <label>Cashier PIN<input id="cashierPin" type="password" inputmode="numeric"></label>
+            <button id="savePinsBtn">Update PINs</button>
+            <hr>
+            <h3>Backup</h3>
+            <button id="backupBtn">Download Backup</button>
+            <label class="file-label">Restore Backup<input id="restoreInput" type="file" accept=".json"></label>
+            <button id="resetDemoBtn" class="danger">Reset Demo Data</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="customerDialog">
+    <form method="dialog" id="customerForm">
+      <h3 id="customerDialogTitle">Add Customer</h3>
+      <input id="customerId" type="hidden">
+      <label>Name<input id="cName" required></label>
+      <label>Contact<input id="cContact" required></label>
+      <label>Address<textarea id="cAddress"></textarea></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="saveCustomerDialogBtn" class="primary" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="serviceDialog">
+    <form method="dialog" id="serviceForm">
+      <h3 id="serviceDialogTitle">Add Service</h3>
+      <input id="serviceId" type="hidden">
+      <label>Service name<input id="sName" required></label>
+      <label>Pricing type<select id="sType"><option value="kg">Per kilo</option><option value="piece">Per piece</option><option value="flat">Flat rate</option></select></label>
+      <label>Rate<input id="sRate" type="number" min="0" step="0.01" required></label>
+      <label>Minimum charge / quantity<input id="sMinimum" type="number" min="0" step="0.01" value="0"></label>
+      <label><input id="sActive" type="checkbox" checked> Active</label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="saveServiceDialogBtn" class="primary" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="serviceItemDialog">
+    <form method="dialog" id="serviceItemForm">
+      <h3 id="serviceItemTitle">Add Service</h3>
+      <input id="serviceItemId" type="hidden">
+      <label id="qtyLabel">Quantity<input id="serviceQty" type="number" min="0.1" step="0.1" value="1"></label>
+      <label>Remarks<input id="serviceRemarks" placeholder="Optional"></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="addServiceItemBtn" class="primary" value="default">Add</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="orderDialog">
+    <div id="orderDetails"></div>
+    <div class="dialog-actions"><button id="closeOrderBtn">Close</button><button id="printClaimBtn">Print Claim Stub</button><button id="paymentBtn" class="primary">Add Payment</button></div>
+  </dialog>
+
+  <dialog id="paymentDialog">
+    <form method="dialog" id="paymentForm">
+      <h3>Add Payment</h3>
+      <input id="paymentOrderId" type="hidden">
+      <div class="checkout-total">Balance <b id="paymentBalance">₱0.00</b></div>
+      <label>Payment method<select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Bank Transfer</option></select></label>
+      <label id="paymentReferenceWrap" class="hidden">Reference number<input id="paymentReference"></label>
+      <label>Amount<input id="paymentAmount" type="number" min="0.01" step="0.01"></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="savePaymentBtn" class="primary" value="default">Save Payment</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="expenseDialog">
+    <form method="dialog" id="expenseForm">
+      <h3>Add Expense</h3>
+      <label>Date<input id="expenseDate" type="date"></label>
+      <label>Category<select id="expenseCategory"><option>Detergent</option><option>Fabric Conditioner</option><option>Utilities</option><option>Salary</option><option>Delivery</option><option>Repair & Maintenance</option><option>Other</option></select></label>
+      <label>Description<input id="expenseDescription"></label>
+      <label>Amount<input id="expenseAmount" type="number" min="0.01" step="0.01"></label>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="saveExpenseBtn" class="primary" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
 </html>

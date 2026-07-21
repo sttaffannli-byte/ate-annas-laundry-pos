@@ -1,34 +1,37 @@
-# LaundryPOS Pro
+# ATE ANNAS LAUNDRY POS V2
 
-Tablet and touchscreen-friendly Laundry POS with Back Office.
+Complete one-upload Cloudflare Pages build.
 
-## Features
-- Touchscreen POS order entry
-- Laundry services and pricing
+## Included
+- Admin and Cashier login
+- Touchscreen-friendly laundry order entry
 - Customer records
-- Cash, GCash, Maya, and bank payment selection
-- Order status workflow
-- Dashboard, inventory, staff, and reports
-- Responsive layout for tablet, laptop, and mobile
-- LocalStorage persistence for demo use
-- Cloudflare Pages ready
+- Per-kilo, per-piece and flat-rate services
+- Wash, dry, fold, ironing, comforter and delivery services
+- Received and due date
+- Pickup and delivery address
+- Order status: Received, Washing, Drying, Folding, Ready, Released
+- Partial payments and remaining balance
+- Cash, GCash and Bank Transfer
+- Reference number validation
+- Claim stub and printing
+- Expenses
+- Daily reports
+- Backup and restore
+- Offline-ready service worker
+- F5-safe Cloudflare Pages routing
 
-## Run locally
-```bash
-npm install
-npm run dev
-```
+## Default login
+- Admin: `admin` / `1234`
+- Cashier: `cashier` / `0000`
 
-## Build
-```bash
-npm run build
-```
+## Upload
+Extract the ZIP and upload all files to the root of the GitHub repository connected to the laundry Cloudflare Pages project.
 
-## Cloudflare Pages settings
-- Framework preset: Vite
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Node version: 20 or newer
+Cloudflare Pages:
+- Production branch: `main`
+- Framework preset: `None`
+- Build command: blank
+- Build output directory: `.`
 
-## Upload to GitHub
-Upload all files and folders from this project to the root of the repository.
+This first release stores data in browser localStorage. Use Settings > Download Backup regularly.
