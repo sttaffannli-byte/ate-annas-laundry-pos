@@ -1,0 +1,14 @@
+CLOUDFLARE BUILD FIX
+
+The GitHub package.json and wrangler.jsonc files were accidentally replaced with HTML.
+That is why Cloudflare reports:
+Unexpected "<" in JSON
+
+UPLOAD ONLY THESE TWO FILES TO THE GITHUB REPOSITORY ROOT:
+1. package.json
+2. wrangler.jsonc
+
+Choose Replace existing files, then Commit changes to main.
+Do not rename the files.
+Do not upload index.html as package.json or wrangler.jsonc.
+Wait for Cloudflare to redeploy.
