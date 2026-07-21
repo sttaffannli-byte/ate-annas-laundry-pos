@@ -182,3 +182,30 @@ button,input,select,textarea{min-height:44px}
 .realtime-popup button{background:transparent;color:#fff;border:0;font-size:24px;min-height:36px}
 @keyframes realtimePulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 @keyframes popupIn{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.live-clock-card{min-width:220px;padding:8px 13px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff;color:#1e3a8a;text-align:right;box-shadow:0 8px 20px rgba(37,99,235,.08)}
+.live-date-ph{font-size:11px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.04em}
+.live-time-ph{font-size:20px;line-height:1.1;font-weight:900;font-variant-numeric:tabular-nums;margin:2px 0}
+.live-clock-card small{font-size:10px;color:#64748b}
+.inbox-live-clock{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:10px;font-weight:900;font-variant-numeric:tabular-nums}
+@media(max-width:850px){.live-clock-card{min-width:170px}.live-time-ph{font-size:16px}}
+@media(max-width:620px){.live-clock-card{grid-column:1/-1;width:100%;text-align:center}}
+
+.logo-setting-row{display:flex;align-items:center;gap:12px;margin:10px 0 14px}
+.company-logo-preview{max-width:150px;max-height:80px;object-fit:contain;border:1px solid var(--line);border-radius:12px;padding:6px;background:#fff}
+.receipt-logo{display:block;max-width:140px;max-height:75px;object-fit:contain;margin:0 auto 8px}
+.endshift-toolbar{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:16px}
+.endshift-toolbar label{min-width:190px}
+.endshift-cards{grid-template-columns:repeat(4,1fr)}
+@media(max-width:950px){.endshift-toolbar{align-items:stretch;flex-direction:column}.endshift-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.endshift-cards{grid-template-columns:1fr}}
+@media print{
+ body *{visibility:hidden!important}
+ #orderDialog,#orderDialog *{visibility:visible!important}
+ #orderDialog{position:absolute!important;inset:0!important;width:100%!important;max-width:none!important;border:0!important}
+ #orderDialog .dialog-actions{display:none!important}
+ .claim{margin:auto!important;box-shadow:none!important;border:0!important}
+ body[data-paper="58mm"] .claim{width:58mm!important;font-size:11px!important}
+ body[data-paper="80mm"] .claim{width:80mm!important;font-size:13px!important}
+ body[data-paper="A4"] .claim{width:180mm!important;font-size:15px!important}
+}

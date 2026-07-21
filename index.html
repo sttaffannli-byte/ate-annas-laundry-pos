@@ -61,7 +61,12 @@
     <main class="main">
       <header class="topbar">
         <button id="menuBtn" class="menu-btn">☰</button>
-        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V4.2.1 REALTIME FIX</small></div><span id="clock"></span></div>
+        <div><div><h2 id="pageTitle">Dashboard</h2><small class="version-label">V4.3 RECEIPT · PRINTER · END SHIFT</small></div><span id="clock"></span></div>
+        <div class="live-clock-card" aria-live="polite">
+          <div id="liveDatePH" class="live-date-ph">Loading date…</div>
+          <div id="liveTimePH" class="live-time-ph">--:--:-- --</div>
+          <small>Philippine Time · Asia/Manila</small>
+        </div>
         <div id="networkStatus" class="network-status online" role="status" aria-live="polite">
           <span class="network-dot"></span>
           <div>
@@ -166,7 +171,7 @@
               <h3>🔔 Automatic Online Booking Inbox</h3>
               <div class="realtime-line">
                 <small id="bookingSyncText" class="settings-note">Waiting for sync…</small>
-                <span id="realtimeStatus" class="realtime-status active"><i></i> REALTIME ON</span>
+                <span id="realtimeStatus" class="realtime-status active"><i></i> REALTIME ON</span><span id="inboxRealtimeClock" class="inbox-live-clock">--</span>
               </div>
             </div>
             <div class="inline">
@@ -276,7 +281,9 @@
           <article><span>Collected Today</span><b id="paymentsToday">₱0.00</b></article>
           <article><span>Outstanding Balance</span><b id="paymentsBalance">₱0.00</b></article>
           <article><span>Cash</span><b id="paymentsCash">₱0.00</b></article>
-          <article><span>GCash / Bank</span><b id="paymentsDigital">₱0.00</b></article>
+          <article><span>GCash</span><b id="paymentsGCash">₱0.00</b></article>
+          <article><span>Maya</span><b id="paymentsMaya">₱0.00</b></article>
+          <article><span>Bank</span><b id="paymentsBank">₱0.00</b></article>
         </div>
         <div class="table-wrap"><table>
           <thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead>
@@ -297,11 +304,29 @@
       </section>
 
       <section id="page-reports" class="page">
-        <div class="cards">
-          <article><span>Sales Today</span><b id="reportSalesToday">₱0.00</b></article>
-          <article><span>Orders Today</span><b id="reportOrdersToday">0</b></article>
-          <article><span>Net Today</span><b id="reportNetToday">₱0.00</b></article>
-          <article><span>Average Order</span><b id="reportAverage">₱0.00</b></article>
+        <div class="panel endshift-toolbar">
+          <div>
+            <h3>End Shift / Daily Sales</h3>
+            <p class="settings-note">Hiwalay ang Cash, GCash, Maya at Bank Transfer.</p>
+          </div>
+          <label>Sales date<input id="endShiftDate" type="date"></label>
+          <button id="printEndShiftBtn" class="primary">Print End Shift</button>
+        </div>
+        <div class="cards endshift-cards">
+          <article><span>Total Collected</span><b id="endTotal">₱0.00</b></article>
+          <article><span>Cash</span><b id="endCash">₱0.00</b></article>
+          <article><span>GCash</span><b id="endGCash">₱0.00</b></article>
+          <article><span>Maya</span><b id="endMaya">₱0.00</b></article>
+          <article><span>Bank Transfer</span><b id="endBank">₱0.00</b></article>
+          <article><span>Expenses</span><b id="endExpenses">₱0.00</b></article>
+          <article><span>Net Cash Flow</span><b id="endNet">₱0.00</b></article>
+          <article><span>Orders Created</span><b id="endOrders">0</b></article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Order</th><th>Customer</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead>
+            <tbody id="endShiftTable"></tbody>
+          </table>
         </div>
         <div class="report-grid">
           <div class="panel"><h3>Order Status</h3><div id="statusBreakdown"></div></div>
@@ -312,12 +337,31 @@
       <section id="page-settings" class="page">
         <div class="settings-grid">
           <div class="panel">
-            <h3>Store Information</h3>
-            <label>Store name<input id="storeName"></label>
+            <h3>Company Information</h3>
+            <label>Company name<input id="storeName"></label>
             <label>Address<textarea id="storeAddress"></textarea></label>
             <label>Contact<input id="storeContact"></label>
+            <label>Company logo<input id="companyLogoInput" type="file" accept="image/png,image/jpeg,image/webp"></label>
+            <div class="logo-setting-row">
+              <img id="companyLogoPreview" class="company-logo-preview hidden" alt="Company logo preview">
+              <button id="removeLogoBtn" type="button">Remove Logo</button>
+            </div>
+            <button id="saveSettingsBtn" class="primary">Save Company Settings</button>
+          </div>
+          <div class="panel">
+            <h3>Receipt Settings</h3>
+            <label>Receipt heading<input id="receiptHeading" placeholder="OFFICIAL RECEIPT / CLAIM STUB"></label>
             <label>Receipt footer<textarea id="receiptFooter"></textarea></label>
-            <button id="saveSettingsBtn" class="primary">Save Settings</button>
+            <label><input id="receiptShowLogo" type="checkbox"> Show company logo on receipt</label>
+            <label><input id="receiptShowCashier" type="checkbox"> Show cashier name</label>
+            <button id="saveReceiptSettingsBtn" class="primary">Save Receipt Settings</button>
+            <hr>
+            <h3>Printer Settings</h3>
+            <label>Paper size<select id="printerPaperSize"><option value="58mm">58mm Thermal</option><option value="80mm">80mm Thermal</option><option value="A4">A4</option></select></label>
+            <label>Receipt copies<input id="printerCopies" type="number" min="1" max="3" value="1"></label>
+            <label><input id="printerAutoPrint" type="checkbox"> Auto-print after payment</label>
+            <button id="savePrinterSettingsBtn">Save Printer Settings</button>
+            <button id="testPrintBtn" type="button">Test Print</button>
           </div>
           <div class="panel">
             <h3>Security</h3>
@@ -383,7 +427,7 @@
       <h3>Add Payment</h3>
       <input id="paymentOrderId" type="hidden">
       <div class="checkout-total">Balance <b id="paymentBalance">₱0.00</b></div>
-      <label>Payment method<select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Bank Transfer</option></select></label>
+      <label>Payment method<select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Maya</option><option>Bank Transfer</option></select></label>
       <label id="paymentReferenceWrap" class="hidden">Reference number<input id="paymentReference"></label>
       <label>Amount<input id="paymentAmount" type="number" min="0.01" step="0.01"></label>
       <div class="dialog-actions"><button value="cancel">Cancel</button><button id="savePaymentBtn" class="primary" value="default">Save Payment</button></div>
